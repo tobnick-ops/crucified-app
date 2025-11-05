@@ -1,5 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Auth Portal Quickstart
+
+1. Kopiere `.env.example` nach `.env` und setze einen sicheren `AUTH_SECRET`.
+2. Führe `npx prisma migrate dev` aus, um die SQLite-Datenbank zu erzeugen.
+3. Starte den Dev-Server mit `npm run dev`.
+4. Öffne [http://localhost:3000](http://localhost:3000) – du wirst zur neuen Login-Seite weitergeleitet.
+5. Lege ein Konto auf `/register` an; nach erfolgreicher Registrierung erfolgt ein Redirect auf `/dashboard`.
+6. Tests laufen mit `npm run test`, Linting mit `npm run lint`.
+
 ## Getting Started
 
 First, run the development server:
