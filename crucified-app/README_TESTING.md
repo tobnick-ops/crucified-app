@@ -19,6 +19,7 @@ Das Skript erledigt `npm install`, `prisma generate`, `prisma migrate deploy`, `
 npm install
 npm run db:generate
 npm run db:migrate
+npm run db:migrate:dev # nur für neue Migrationen während der Entwicklung
 npm run db:seed
 npm run test:create-account
 ```
@@ -27,5 +28,11 @@ npm run test:create-account
 
 - Dev Server: `npm run dev`
 - Prisma Studio: `npm run db:studio`
+
+## 5. API-Checks
+
+- `GET /api/health` — prüft Datenbank-Erreichbarkeit
+- `GET /api/lessons` — liefert Seed-Lektionen
+- `GET /api/missions` — liefert Seed-Missionen
 
 Alle detaillierten Erkenntnisse, Checklisten und Roadmaps findest du in `TESTING_MASTER.md`.

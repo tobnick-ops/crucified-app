@@ -39,6 +39,8 @@ Du kannst jeden Schritt auch manuell ausführen:
 npm install
 npm run db:generate
 npm run db:migrate
+# Für Schema-Änderungen während der Entwicklung:
+# npm run db:migrate:dev
 npm run db:seed
 npm run test:create-account
 ```
@@ -56,14 +58,21 @@ Die App läuft anschließend unter [http://localhost:3000](http://localhost:3000
 - `npm run db:studio` — Prisma Studio zum manuellen Blick in die Datenbank
 - `npm run db:push` — Schema ohne Migration synchronisieren (nur für Prototypen)
 - `npm run db:migrate` — Migrationen auf eine bestehende Datenbank anwenden
+- `npm run db:migrate:dev` — Migrationen entwickeln und anwenden (lokal)
 - `npm run db:seed` — Referenz- und Content-Daten neu einspielen
 - `npm run test:create-account` — Test-Login aktualisieren oder erzeugen
 
-## 6. Testing-Roadmap
+## 6. API-Schnittstellen
+
+- `GET /api/health` — Systemstatus & Datenbank-Erreichbarkeit
+- `GET /api/lessons` — Liste der verfügbaren Lektionen
+- `GET /api/missions` — Missionsübersicht mit Belohnungen
+
+## 7. Testing-Roadmap
 
 Den jeweils aktuellen Teststatus findest du im Dokument `crucified-app/TESTING_MASTER.md`. Dort sind Frontend- und Backend-Fortschritte, Blocker sowie nächste Schritte detailliert beschrieben.
 
-## 7. Weitere Ressourcen
+## 8. Weitere Ressourcen
 
 - Next.js App Router Dokumentation: https://nextjs.org/docs
 - Prisma ORM Dokumentation: https://www.prisma.io/docs

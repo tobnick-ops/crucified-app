@@ -242,13 +242,15 @@ Error: @prisma/client did not initialize yet. Please run "prisma generate"
 
 **Lösung (Heute umgesetzt)**:
 - `prisma/schema.prisma` angelegt (Modelle für User, Character, Lessons, Missions, Skills, Equipment, Fragments, Sets, Leaderboard, Dailies)
+- `prisma/migrations/20241106000000_init` hinzugefügt (Initiales SQL für alle Tabellen & Enums)
 - `prisma/seed/index.ts` implementiert (Referenzdaten zu Lessons, Missions, Skills, Equipment, Sets, Fragments)
 - `scripts/create-test-account.ts` erstellt (Credentials-basiertes Testkonto inkl. Progress)
 - `scripts/setup-database.sh` erstellt (vollautomatisches Setup: Docker-Option, npm install, Prisma Generate, Migrate, Seed, Test-Account)
 - `package.json` erweitert (Prisma & Seed Skripte, Next dev mit `--webpack`, neue Dependencies)
-- `.env.example` ergänzt (Basiswerte für lokale Entwicklung)
+- `.env.example` ergänzt (Basiswerte + Test-Account Variablen für lokale Entwicklung)
+- Erste API-Endpunkte bereitgestellt (`/api/health`, `/api/lessons`, `/api/missions`)
 
-**Auswirkung**: Backend-Setup ist jetzt direkt aus dem Repository möglich (`npm run setup:database`). Der vorherige Blocker ist aufgehoben; nach dem Einrichten einer Datenbank können Migrationen, Seeds und Tests durchgeführt werden.
+**Auswirkung**: Backend-Setup ist jetzt direkt aus dem Repository möglich (`npm run setup:database`). Der vorherige Blocker ist aufgehoben; nach dem Einrichten einer Datenbank können Migrationen, Seeds, API-Checks und Tests durchgeführt werden.
 
 ### ✅ Lösungen implementiert
 
@@ -260,7 +262,7 @@ Error: @prisma/client did not initialize yet. Please run "prisma generate"
 6. **Prisma Client generiert**: Client erfolgreich generiert
 7. **Middleware funktioniert**: Auth Protection funktioniert korrekt
 8. **CallbackUrl funktioniert**: Weiterleitung nach Login funktioniert
-9. **Backend-Grundgerüst ergänzt**: Prisma Schema, Seeds, Setup-Skripte und Test-Account Skript verfügbar
+9. **Backend-Grundgerüst ergänzt**: Prisma Schema, Initial-Migration, Seeds, Setup-/Account-Skripte und erste API-Endpunkte verfügbar
 
 ---
 
@@ -584,7 +586,7 @@ npm run dev
 - ✅ **Code-Struktur**: Verbessert
 - ✅ **Type-Safety**: Erhöht
 - ⚠️ **ESLint-Warnungen**: 120 Warnungen (optional)
-- ⚠️ **Seed Scripts**: Erfordert DATABASE_URL für PrismaClient Import (10 Fehler)
+- ⚠️ **Seed Script**: Erfordert DATABASE_URL für PrismaClient Import (Fehler ohne aktive Datenbank)
 - ⚠️ **Prisma Client**: Erfordert DATABASE_URL für Import (2 Fehler)
 
 **Für Details siehe**: `CODE_QUALITY_FINAL.md`
@@ -677,6 +679,7 @@ npm run dev
 ### 📊 Aktueller Status
 
 #### Database Setup
+- ✅ Initial-Migration verfügbar (`prisma/migrations/20241106000000_init`)
 - ⚠️ **.env.local** anlegen (Vorlage `.env.example` im Repo)
 - ⚠️ **Prisma Client** muss nach erster Installation generiert werden (`npm run db:generate`)
 - ⚠️ **Docker oder lokale PostgreSQL** bereitstellen (Skript unterstützt Docker)
@@ -813,7 +816,7 @@ npm run dev
 
 ### ✅ Abgeschlossen (100%)
 - Testing-Dokumentation konsolidiert (33+ Dokumente gelöscht)
-- Backend-Grundgerüst ergänzt (Prisma Schema, Seed Script, Setup-/Account-Skripte)
+- Backend-Grundgerüst ergänzt (Prisma Schema, Initial-Migration, Seed Script, Setup-/Account-Skripte, API-Endpunkte)
 - README.md und README_TESTING.md aktualisiert
 - Setup-Skript `npm run setup:database` erstellt
 - Test-Account Script vorbereitet (`scripts/create-test-account.ts`)
@@ -933,9 +936,11 @@ npm run dev
 
 **Vorbereitungen:**
 - ✅ Prisma Schema vorhanden
+- ✅ Initial-Migration hinterlegt (`prisma/migrations/20241106000000_init`)
 - ✅ Seed Script vorhanden (`prisma/seed/index.ts`)
 - ✅ Test-Account Script vorhanden (`scripts/create-test-account.ts`)
 - ✅ Setup-Script vorhanden (`scripts/setup-database.sh`)
+- ✅ Erste API-Endpunkte erstellt (`/api/health`, `/api/lessons`, `/api/missions`)
 - ⚠️ Prisma Client generieren (`npm run db:generate`)
 - ⚠️ `.env.local` mit DATABASE_URL anlegen
 - ⚠️ Migration(en) erzeugen & anwenden
@@ -1019,7 +1024,7 @@ npm run test:create-account
 
 **Erwartetes Ergebnis:**
 - ✅ Migrations erfolgreich ausgeführt
-- ✅ Seed Data eingefügt (Bibelbücher, Equipment, Sets, Fragmente, Rabbis, Skills, Lessons, Missions)
+- ✅ Seed Data eingefügt (Lessons, Missions, Sets, Equipment, Skills, Fragments)
 - ✅ Test-Account erstellt (test@crucified.app / Test123456)
 
 ### Phase 3: Backend-Testing (nach Setup) ⚠️
@@ -1055,14 +1060,15 @@ npm run dev
 ## 💡 Was ist jetzt logisch umsetzbar?
 
 ### ✅ Bereit für nächste Schritte
-- ✅ Prisma Client generiert
 - ✅ Prisma Schema vorhanden
-- ✅ Environment Variables konfiguriert (.env & .env.local)
-- ✅ DATABASE_URL gesetzt
-- ✅ 9 Seed Scripts vorhanden
-- ✅ Test-Account Script vorhanden
-- ✅ Package.json Scripts konfiguriert
-- ✅ Migrations vorbereitet
+- ✅ Seed Script vorhanden (`prisma/seed/index.ts`)
+- ✅ Test-Account Script vorhanden (`scripts/create-test-account.ts`)
+- ✅ Setup-Script vorhanden (`scripts/setup-database.sh`)
+- ✅ Package.json mit Datenbank-/Seed-Skripten erweitert
+- ✅ Erste API-Endpunkte implementiert (`/api/health`, `/api/lessons`, `/api/missions`)
+- ⚠️ Prisma Client generieren (`npm run db:generate`)
+- ⚠️ `.env.local` erstellen & DATABASE_URL setzen
+- ⚠️ Migration anwenden (`npm run db:migrate`)
 
 ### ⚠️ Blockierer
 - ⚠️ PostgreSQL läuft nicht
