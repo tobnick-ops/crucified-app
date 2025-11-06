@@ -236,6 +236,22 @@ Error: @prisma/client did not initialize yet. Please run "prisma generate"
 
 **Erkenntnis**: Next.js Middleware mit NextAuth funktioniert korrekt.
 
+#### 9. Backend-Artefakte fehlen 🔴 BLOCKER
+
+**Problem**: Die im Dokument vorausgesetzten Backend-Ressourcen sind im aktuellen Repository nicht vorhanden.
+
+**Feststellungen**:
+- Kein `prisma` Verzeichnis vorhanden (keine `schema.prisma`, keine Migrationen)
+- Keine Seed- oder Setup-Skripte (`scripts/` Ordner fehlt vollständig)
+- `package.json` enthält keine Prisma- oder Datenbank-Befehle
+- `docker` ist nicht installiert, sodass die beschriebenen Docker-Schritte nicht ausgeführt werden können
+
+**Auswirkung**: Alle Backend-bezogenen To-Dos (Database Setup, Migrationen, Seeds, Test-Account, Backend-Tests) sind blockiert.
+
+**Empfohlene Aktion**:
+- Benötigte Backend-Dateien und Skripte ins Repository aufnehmen oder Bereitstellung anfordern
+- Alternativ Dokumentation anpassen, falls der Backend-Umfang aktuell nicht zum Projekt gehört
+
 ### ✅ Lösungen implementiert
 
 1. **Prisma Schema Fehler behoben**: Alle Relation-Fehler behoben
@@ -351,6 +367,11 @@ npm run dev
 ## Nächste Schritte
 
 ### 🎯 Prioritäten
+
+#### 0. Repository-Inhalte prüfen (BLOCKER)
+- [ ] Backend-Artefakte (Prisma-Schema, Migrationen, Seed-Skripte) ins Repo aufnehmen
+- [ ] Projekt-Skripte in `package.json` um Datenbank-Befehle ergänzen
+- [ ] Dokumentation anpassen, falls Backend vorerst nicht Teil des Umfangs ist
 
 #### 1. Database Setup (ERFORDERLICH)
 - [ ] Database einrichten (Docker, lokal oder Cloud)
@@ -517,6 +538,7 @@ npm run dev
 - ✅ Prisma Client generiert
 - ✅ Frontend-Testing abgeschlossen
 - ✅ Testing Master-Dokument erstellt
+- 🔴 Festgestellt: Backend-Artefakte (Prisma, Scripts, Seeds) fehlen im aktuellen Repository
 
 ### Nächste Updates
 - [ ] Database Setup durchgeführt
@@ -897,6 +919,7 @@ npm run dev
 - ⚠️ Migrations können nicht ausgeführt werden
 - ⚠️ Seed Data kann nicht eingefügt werden
 - ⚠️ Test-Account kann nicht erstellt werden
+- 🔴 Repository enthält keine benötigten Backend-Dateien (Prisma, Scripts, Seeds)
 
 ### 🎯 Lösung: Database Setup erforderlich
 
@@ -1077,6 +1100,8 @@ npm run dev
 ## 🛠️ Database Setup Script
 
 **Neues Setup-Script erstellt**: `scripts/setup-database.sh`
+
+⚠️ **Hinweis (Heute)**: Im aktuellen Repository ist kein `scripts/setup-database.sh` vorhanden. Die Erstellung oder Bereitstellung dieses Skripts steht noch aus.
 
 **Features:**
 - ✅ Automatische Prüfung verfügbarer Optionen (Docker/PostgreSQL/Homebrew)
