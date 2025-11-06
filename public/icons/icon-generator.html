@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icon Generator - Crucified</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1e3a5f;
+            color: white;
+        }
+        .icon-preview {
+            display: inline-block;
+            margin: 10px;
+            text-align: center;
+        }
+        canvas {
+            border: 2px solid #d4af37;
+            margin: 10px;
+        }
+        .info {
+            background: rgba(212, 175, 55, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Icon Generator für Crucified</h1>
+    <div class="info">
+        <p><strong>Hinweis:</strong> Dies ist ein temporärer Icon-Generator. Erstelle echte Icons mit einem Design-Tool (z.B. Figma, Canva) und ersetze die generierten Icons.</p>
+        <p>Empfohlene Größen: 192x192, 512x512, Apple Touch Icon (180x180)</p>
+    </div>
+    <div id="icons"></div>
+
+    <script>
+        // Tempel-Icon Design (einfaches SVG-basiertes Design)
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const container = document.getElementById('icons');
+
+        sizes.forEach(size => {
+            const canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+
+            // Hintergrund (Tempel-Blau)
+            ctx.fillStyle = '#1e3a5f';
+            ctx.fillRect(0, 0, size, size);
+
+            // Goldener Rahmen
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = size * 0.05;
+            ctx.strokeRect(size * 0.1, size * 0.1, size * 0.8, size * 0.8);
+
+            // Kreuz in der Mitte
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = size * 0.08;
+            ctx.beginPath();
+            // Vertikale Linie
+            ctx.moveTo(size * 0.5, size * 0.25);
+            ctx.lineTo(size * 0.5, size * 0.75);
+            // Horizontale Linie
+            ctx.moveTo(size * 0.25, size * 0.5);
+            ctx.lineTo(size * 0.75, size * 0.5);
+            ctx.stroke();
+
+            // Text unter Icon
+            const div = document.createElement('div');
+            div.className = 'icon-preview';
+            div.innerHTML = `<canvas id="icon-${size}"></canvas><br>${size}x${size}`;
+            container.appendChild(div);
+            
+            // Canvas in div einfügen
+            const canvasDiv = div.querySelector('canvas');
+            canvasDiv.width = size;
+            canvasDiv.height = size;
+            const ctxDiv = canvasDiv.getContext('2d');
+            ctxDiv.fillStyle = '#1e3a5f';
+            ctxDiv.fillRect(0, 0, size, size);
+            ctxDiv.strokeStyle = '#d4af37';
+            ctxDiv.lineWidth = size * 0.05;
+            ctxDiv.strokeRect(size * 0.1, size * 0.1, size * 0.8, size * 0.8);
+            ctxDiv.strokeStyle = '#d4af37';
+            ctxDiv.lineWidth = size * 0.08;
+            ctxDiv.beginPath();
+            ctxDiv.moveTo(size * 0.5, size * 0.25);
+            ctxDiv.lineTo(size * 0.5, size * 0.75);
+            ctxDiv.moveTo(size * 0.25, size * 0.5);
+            ctxDiv.lineTo(size * 0.75, size * 0.5);
+            ctxDiv.stroke();
+
+            // Download Button
+            canvasDiv.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `icon-${size}x${size}.png`;
+                a.textContent = 'Download';
+                a.style.display = 'block';
+                a.style.marginTop = '5px';
+                a.style.color = '#d4af37';
+                div.appendChild(a);
+            });
+        });
+
+        // Apple Touch Icon (180x180)
+        const appleCanvas = document.createElement('canvas');
+        appleCanvas.width = 180;
+        appleCanvas.height = 180;
+        const appleCtx = appleCanvas.getContext('2d');
+        appleCtx.fillStyle = '#1e3a5f';
+        appleCtx.fillRect(0, 0, 180, 180);
+        appleCtx.strokeStyle = '#d4af37';
+        appleCtx.lineWidth = 9;
+        appleCtx.strokeRect(18, 18, 144, 144);
+        appleCtx.strokeStyle = '#d4af37';
+        appleCtx.lineWidth = 14.4;
+        appleCtx.beginPath();
+        appleCtx.moveTo(90, 45);
+        appleCtx.lineTo(90, 135);
+        appleCtx.moveTo(45, 90);
+        appleCtx.lineTo(135, 90);
+        appleCtx.stroke();
+
+        const appleDiv = document.createElement('div');
+        appleDiv.className = 'icon-preview';
+        appleDiv.innerHTML = `<canvas id="apple-icon"></canvas><br>Apple Touch Icon (180x180)`;
+        container.appendChild(appleDiv);
+        const appleCanvasDiv = appleDiv.querySelector('canvas');
+        appleCanvasDiv.width = 180;
+        appleCanvasDiv.height = 180;
+        const appleCtxDiv = appleCanvasDiv.getContext('2d');
+        appleCtxDiv.fillStyle = '#1e3a5f';
+        appleCtxDiv.fillRect(0, 0, 180, 180);
+        appleCtxDiv.strokeStyle = '#d4af37';
+        appleCtxDiv.lineWidth = 9;
+        appleCtxDiv.strokeRect(18, 18, 144, 144);
+        appleCtxDiv.strokeStyle = '#d4af37';
+        appleCtxDiv.lineWidth = 14.4;
+        appleCtxDiv.beginPath();
+        appleCtxDiv.moveTo(90, 45);
+        appleCtxDiv.lineTo(90, 135);
+        appleCtxDiv.moveTo(45, 90);
+        appleCtxDiv.lineTo(135, 90);
+        appleCtxDiv.stroke();
+
+        appleCanvasDiv.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'apple-touch-icon.png';
+            a.textContent = 'Download';
+            a.style.display = 'block';
+            a.style.marginTop = '5px';
+            a.style.color = '#d4af37';
+            appleDiv.appendChild(a);
+        });
+    </script>
+</body>
+</html>
+

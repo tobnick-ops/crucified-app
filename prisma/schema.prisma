@@ -1,0 +1,489 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Users & Authentication
+// ============================================
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  createdAt     DateTime @default(now()) @map("created_at")
+  lastLogin     DateTime? @map("last_login")
+  
+  // Relations
+  characters    Character[]
+  sessions      UserSession[]
+  
+  @@map("users")
+}
+
+model UserSession {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  token     String   @unique
+  expiresAt DateTime @map("expires_at")
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
+  @@index([userId])
+  @@index([token])
+}
+
+// ============================================
+// Character System
+// ============================================
+
+model Character {
+  id            String   @id @default(cuid())
+  userId        String   @map("user_id")
+  name          String
+  level         Int      @default(1)
+  experience    Int      @default(0)
+  strength      Int      @default(0) // Total Strength für Leaderboard
+  currentRabbiId String? @map("current_rabbi_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentRabbi  Rabbi?   @relation("CharacterRabbi", fields: [currentRabbiId], references: [id])
+  stats         CharacterStats?
+  rabbiProgress CharacterRabbiProgress[]
+  equipment     CharacterEquipment[]
+  skills        CharacterSkill[]
+  lessons       CharacterLesson[]
+  missions      CharacterMission[]
+  fragments     CharacterFragment[]
+  dailyCurrency DailyCurrency[]
+  dailyRewards  DailyReward[]
+  leaderboard  Leaderboard?
+  
+  @@map("characters")
+  @@index([userId])
+  @@index([strength]) // Für Leaderboard
+}
+
+model CharacterStats {
+  id          String    @id @default(cuid())
+  characterId String    @unique @map("character_id")
+  faith       Int       @default(0)
+  wisdom      Int       @default(0)
+  knowledge   Int       @default(0)
+  service     Int       @default(0)
+  leadership  Int       @default(0)
+  totalStrength Int     @default(0) @map("total_strength")
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  
+  @@map("character_stats")
+}
+
+// ============================================
+// Rabbi System
+// ============================================
+
+model Rabbi {
+  id              String   @id @default(cuid())
+  name            String
+  description     String   @db.Text
+  startingBookId  String?  @map("starting_book_id")
+  startingSkillTreeId String? @unique @map("starting_skill_tree_id")
+  iconPath        String?  @map("icon_path")
+  
+  // Relations
+  startingBook    BibleBook? @relation("RabbiStartingBook", fields: [startingBookId], references: [id])
+  startingSkillTree SkillTree? @relation("RabbiStartingTree", fields: [startingSkillTreeId], references: [id])
+  characters      Character[] @relation("CharacterRabbi")
+  rabbiProgress   CharacterRabbiProgress[]
+  
+  @@map("rabbis")
+}
+
+model CharacterRabbiProgress {
+  id                String   @id @default(cuid())
+  characterId       String   @map("character_id")
+  rabbiId           String   @map("rabbi_id")
+  progressPercentage Float   @default(0) @map("progress_percentage")
+  unlockedSkills    String[] @default([]) @map("unlocked_skills")
+  
+  character         Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  rabbi             Rabbi     @relation(fields: [rabbiId], references: [id], onDelete: Cascade)
+  
+  @@unique([characterId, rabbiId])
+  @@map("character_rabbi_progress")
+}
+
+// ============================================
+// Equipment System
+// ============================================
+
+enum ItemType {
+  HELM
+  SHOULDER
+  CHEST
+  LEGS
+  FEET
+  WEAPON
+  ACCESSORY
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+  ARTIFACT
+}
+
+model EquipmentItem {
+  id            String   @id @default(cuid())
+  name          String
+  description   String   @db.Text
+  itemType      ItemType @map("item_type")
+  rarity        Rarity
+  baseStrength  Int      @map("base_strength")
+  slot          String
+  iconPath      String?  @map("icon_path")
+  requiredLevel Int      @default(1) @map("required_level")
+  
+  // Relations
+  sockets       EquipmentSocket[]
+  characterEquipments CharacterEquipment[]
+  setItems     EquipmentSetItem[]
+  
+  @@map("equipment_items")
+  @@index([itemType])
+  @@index([rarity])
+}
+
+model EquipmentSocket {
+  id          String   @id @default(cuid())
+  equipmentId String   @map("equipment_id")
+  socketType  String   @map("socket_type")
+  maxSockets Int      @default(1) @map("max_sockets")
+  
+  equipment   EquipmentItem @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  
+  @@map("equipment_sockets")
+}
+
+model CharacterEquipment {
+  id          String   @id @default(cuid())
+  characterId String   @map("character_id")
+  equipmentId String   @map("equipment_id")
+  slot        String
+  isEquipped  Boolean  @default(false) @map("is_equipped")
+  socketedStones String[] @default([]) @map("socketed_stones")
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  equipment   EquipmentItem @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  
+  @@map("character_equipment")
+  @@index([characterId])
+  @@index([equipmentId])
+}
+
+model EquipmentSet {
+  id          String   @id @default(cuid())
+  name        String
+  description String   @db.Text
+  bonus2Piece String?  @map("bonus_2_piece") @db.Text
+  bonus4Piece String?  @map("bonus_4_piece") @db.Text
+  bonus6Piece String?  @map("bonus_6_piece") @db.Text
+  
+  setItems    EquipmentSetItem[]
+  
+  @@map("equipment_sets")
+}
+
+model EquipmentSetItem {
+  id          String   @id @default(cuid())
+  setId       String   @map("set_id")
+  equipmentId String   @map("equipment_id")
+  
+  set         EquipmentSet @relation(fields: [setId], references: [id], onDelete: Cascade)
+  equipment   EquipmentItem @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+  
+  @@unique([setId, equipmentId])
+  @@map("equipment_set_items")
+}
+
+// ============================================
+// Skill Tree System
+// ============================================
+
+model SkillTree {
+  id          String   @id @default(cuid())
+  rabbiId     String?  @map("rabbi_id")
+  name        String
+  description String   @db.Text
+  
+  rabbi       Rabbi?   @relation("RabbiStartingTree")
+  skills      Skill[]
+  
+  @@map("skill_trees")
+}
+
+enum SkillType {
+  PROPHETIC
+  TONGUES
+  FRUIT_OF_SPIRIT
+  TEMPLE_SERVICE
+  LEADERSHIP
+}
+
+model Skill {
+  id                String   @id @default(cuid())
+  skillTreeId       String   @map("skill_tree_id")
+  name              String
+  description       String   @db.Text
+  levelRequirement  Int      @map("level_requirement")
+  parentSkillId     String?  @map("parent_skill_id")
+  skillType         SkillType @map("skill_type")
+  effect            String   @db.Text // JSON String für Effekte
+  
+  skillTree         SkillTree @relation(fields: [skillTreeId], references: [id], onDelete: Cascade)
+  parentSkill       Skill?    @relation("SkillHierarchy", fields: [parentSkillId], references: [id])
+  childSkills       Skill[]   @relation("SkillHierarchy")
+  characterSkills   CharacterSkill[]
+  
+  @@map("skills")
+  @@index([skillTreeId])
+  @@index([parentSkillId])
+}
+
+model CharacterSkill {
+  id          String   @id @default(cuid())
+  characterId String   @map("character_id")
+  skillId     String   @map("skill_id")
+  level       Int      @default(1)
+  unlockedAt DateTime @default(now()) @map("unlocked_at")
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  skill       Skill     @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  
+  @@unique([characterId, skillId])
+  @@map("character_skills")
+}
+
+// ============================================
+// Book & Lesson System
+// ============================================
+
+model BibleBook {
+  id          String   @id @default(cuid())
+  name        String
+  abbreviation String
+  order       Int
+  description String?  @db.Text
+  
+  // Relations
+  startingRabbi Rabbi[] @relation("RabbiStartingBook")
+  lessons     Lesson[]
+  missions    Mission[]
+  fragments   Fragment[]
+  
+  @@map("bible_books")
+  @@unique([abbreviation])
+}
+
+model Lesson {
+  id              String   @id @default(cuid())
+  bookId          String   @map("book_id")
+  title           String
+  description     String   @db.Text
+  difficulty      String   // "easy" | "medium" | "hard"
+  requiredLevel   Int      @default(1) @map("required_level")
+  experienceReward Int     @default(100) @map("experience_reward")
+  dailyLimit      Int      @default(1) @map("daily_limit")
+  
+  book            BibleBook @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  questions       LessonQuestion[]
+  characterLessons CharacterLesson[]
+  
+  @@map("lessons")
+  @@index([bookId])
+}
+
+model LessonQuestion {
+  id            String   @id @default(cuid())
+  lessonId      String   @map("lesson_id")
+  questionText  String   @map("question_text") @db.Text
+  questionType  String   @map("question_type") // "multiple_choice" | "true_false" | "fill_blank" | "matching"
+  correctAnswer String   @map("correct_answer") @db.Text
+  optionsJson   String?  @map("options_json") @db.Text // JSON String für Optionen
+  
+  lesson        Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  @@map("lesson_questions")
+}
+
+model CharacterLesson {
+  id          String   @id @default(cuid())
+  characterId String   @map("character_id")
+  lessonId    String   @map("lesson_id")
+  completedAt DateTime @default(now()) @map("completed_at")
+  score       Float    @default(0)
+  attempts    Int      @default(1)
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  lesson      Lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  
+  @@unique([characterId, lessonId])
+  @@map("character_lessons")
+}
+
+// ============================================
+// Mission System
+// ============================================
+
+enum MissionType {
+  RESOURCE_COLLECTION
+  STORY_INTERACTION
+  COMBAT
+  PUZZLE
+}
+
+model Mission {
+  id                String      @id @default(cuid())
+  bookId            String      @map("book_id")
+  title             String
+  description       String      @db.Text
+  requiredLevel     Int         @default(1) @map("required_level")
+  experienceReward  Int         @default(200) @map("experience_reward")
+  storyCharacterId  String?     @map("story_character_id") // Fragment ID
+  missionType       MissionType @map("mission_type")
+  estimatedDuration Int         @default(5) @map("estimated_duration") // Minuten
+  
+  book              BibleBook   @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  objectives        MissionObjective[]
+  characterMissions CharacterMission[]
+  
+  @@map("missions")
+  @@index([bookId])
+}
+
+model MissionObjective {
+  id            String   @id @default(cuid())
+  missionId     String   @map("mission_id")
+  objectiveText String   @map("objective_text") @db.Text
+  objectiveType String   @map("objective_type")
+  requiredValue Int      @default(1) @map("required_value")
+  
+  mission       Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  
+  @@map("mission_objectives")
+}
+
+model CharacterMission {
+  id          String   @id @default(cuid())
+  characterId String   @map("character_id")
+  missionId   String   @map("mission_id")
+  status      String   // "not_started" | "in_progress" | "completed" | "failed"
+  progressJson String? @default("{}") @map("progress_json") @db.Text // JSON String für Fortschritt
+  startedAt   DateTime? @map("started_at")
+  completedAt DateTime? @map("completed_at")
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  mission     Mission   @relation(fields: [missionId], references: [id], onDelete: Cascade)
+  
+  @@unique([characterId, missionId])
+  @@map("character_missions")
+}
+
+// ============================================
+// Fragment System (Sammelbuch)
+// ============================================
+
+model Fragment {
+  id              String   @id @default(cuid())
+  bookId          String?  @map("book_id")
+  characterName   String?  @map("character_name")
+  description     String   @db.Text
+  unlockCondition String   @map("unlock_condition") @db.Text
+  iconPath        String?  @map("icon_path")
+  fragmentType    String   @map("fragment_type") // "character" | "location" | "concept"
+  
+  book            BibleBook? @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  characterFragments CharacterFragment[]
+  
+  @@map("fragments")
+  @@index([bookId])
+}
+
+model CharacterFragment {
+  id          String   @id @default(cuid())
+  characterId String   @map("character_id")
+  fragmentId  String   @map("fragment_id")
+  unlockedAt  DateTime @default(now()) @map("unlocked_at")
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  fragment    Fragment  @relation(fields: [fragmentId], references: [id], onDelete: Cascade)
+  
+  @@unique([characterId, fragmentId])
+  @@map("character_fragments")
+}
+
+// ============================================
+// Daily System
+// ============================================
+
+model DailyCurrency {
+  id                String   @id @default(cuid())
+  characterId       String   @map("character_id")
+  date              DateTime @default(now())
+  lessonsRemaining  Int      @default(5) @map("lessons_remaining")
+  currencyEarned    Int      @default(0) @map("currency_earned")
+  nightWatchCompleted Boolean @default(false) @map("night_watch_completed")
+  
+  character         Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  
+  @@unique([characterId, date])
+  @@map("daily_currency")
+  @@index([characterId, date])
+}
+
+model DailyReward {
+  id          String   @id @default(cuid())
+  characterId String   @map("character_id")
+  date        DateTime @default(now())
+  rewardType  String   @map("reward_type")
+  rewardValue String   @map("reward_value") @db.Text // JSON String
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  
+  @@map("daily_rewards")
+  @@index([characterId, date])
+}
+
+// ============================================
+// Leaderboard
+// ============================================
+
+model Leaderboard {
+  id          String   @id @default(cuid())
+  characterId String   @unique @map("character_id")
+  totalStrength Int    @map("total_strength")
+  rank        Int
+  rankCategory String  @map("rank_category") // "total" | "level" | "collection" | "faith" | "completion"
+  lastUpdated DateTime @default(now()) @map("last_updated")
+  
+  character   Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
+  
+  @@map("leaderboard")
+  @@index([rankCategory, totalStrength])
+  @@index([rank])
+}

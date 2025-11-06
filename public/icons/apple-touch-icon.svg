@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="180" height="180" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hintergrund (Tempel-Blau) -->
+  <rect width="180" height="180" fill="#1e3a5f"/>
+  
+  <!-- Goldener Rahmen -->
+  <rect x="18" y="18" width="144" height="144" 
+        fill="none" stroke="#d4af37" stroke-width="9" rx="9"/>
+  
+  <!-- Kreuz (Gold) -->
+  <g stroke="#d4af37" stroke-width="14.4" stroke-linecap="round">
+    <!-- Vertikale Linie -->
+    <line x1="90" y1="45" x2="90" y2="135"/>
+    <!-- Horizontale Linie -->
+    <line x1="45" y1="90" x2="135" y2="90"/>
+  </g>
+</svg>
