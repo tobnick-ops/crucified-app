@@ -1,0 +1,295 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LessonStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum MissionStatus {
+  LOCKED
+  ACTIVE
+  COMPLETED
+}
+
+enum DailyTaskStatus {
+  OPEN
+  COMPLETED
+  SKIPPED
+}
+
+enum EquipmentSlot {
+  HEAD
+  CHEST
+  LEGS
+  MAIN_HAND
+  OFF_HAND
+  ACCESSORY
+}
+
+enum Rarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+model User {
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  name           String?
+  image          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  character          Character?
+  sessions           Session[]
+  accounts           Account[]
+  verificationTokens VerificationToken[]
+}
+
+model Character {
+  id          String   @id @default(cuid())
+  name        String
+  title       String?
+  biography   String?
+  userId      String   @unique
+  level       Int      @default(1)
+  experience  Int      @default(0)
+  coins       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user               User              @relation(fields: [userId], references: [id])
+  skills             CharacterSkill[]
+  missions           MissionProgress[]
+  equipment          CharacterEquipment[]
+  fragments          CharacterFragment[]
+  sets               CharacterSet[]
+  lessonProgress     LessonProgress[]
+  leaderboardEntries LeaderboardEntry[]
+  dailyTasks         DailyTask[]
+}
+
+model Lesson {
+  id          String         @id @default(cuid())
+  slug        String         @unique
+  title       String
+  summary     String?
+  difficulty  Int            @default(1)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  progress    LessonProgress[]
+}
+
+model LessonProgress {
+  characterId String
+  lessonId    String
+  status      LessonStatus @default(NOT_STARTED)
+  completedAt DateTime?
+  updatedAt   DateTime     @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id])
+  lesson    Lesson    @relation(fields: [lessonId], references: [id])
+
+  @@id([characterId, lessonId])
+}
+
+model Mission {
+  id         String           @id @default(cuid())
+  code       String           @unique
+  title      String
+  summary    String?
+  rewardXp   Int              @default(50)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+  progress   MissionProgress[]
+}
+
+model MissionProgress {
+  characterId String
+  missionId   String
+  status      MissionStatus @default(LOCKED)
+  startedAt   DateTime?
+  completedAt DateTime?
+  updatedAt   DateTime      @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id])
+  mission   Mission   @relation(fields: [missionId], references: [id])
+
+  @@id([characterId, missionId])
+}
+
+model Skill {
+  id          String          @id @default(cuid())
+  code        String          @unique
+  name        String
+  description String?
+  category    String?
+  maxLevel    Int             @default(5)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  characters  CharacterSkill[]
+}
+
+model CharacterSkill {
+  characterId String
+  skillId     String
+  level       Int      @default(1)
+  unlockedAt  DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id])
+  skill     Skill     @relation(fields: [skillId], references: [id])
+
+  @@id([characterId, skillId])
+}
+
+model Equipment {
+  id          String            @id @default(cuid())
+  code        String            @unique
+  name        String
+  slot        EquipmentSlot
+  rarity      Rarity            @default(COMMON)
+  description String?
+  setId       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  set     Set?                 @relation(fields: [setId], references: [id])
+  owners  CharacterEquipment[]
+}
+
+model CharacterEquipment {
+  characterId String
+  equipmentId String
+  equippedAt  DateTime @default(now())
+
+  character Character @relation(fields: [characterId], references: [id])
+  equipment Equipment @relation(fields: [equipmentId], references: [id])
+
+  @@id([characterId, equipmentId])
+}
+
+model Fragment {
+  id          String             @id @default(cuid())
+  code        String             @unique
+  name        String
+  category    String?
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  owners      CharacterFragment[]
+}
+
+model CharacterFragment {
+  characterId String
+  fragmentId  String
+  quantity    Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id])
+  fragment  Fragment  @relation(fields: [fragmentId], references: [id])
+
+  @@id([characterId, fragmentId])
+}
+
+model Set {
+  id          String          @id @default(cuid())
+  code        String          @unique
+  name        String
+  description String?
+  bonus       String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  equipment Equipment[]
+  progress  CharacterSet[]
+}
+
+model CharacterSet {
+  characterId String
+  setId       String
+  pieces      Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id])
+  set       Set       @relation(fields: [setId], references: [id])
+
+  @@id([characterId, setId])
+}
+
+model LeaderboardEntry {
+  id          String   @id @default(cuid())
+  characterId String
+  season      String   @default("preseason")
+  score       Int      @default(0)
+  rank        Int?
+  createdAt   DateTime @default(now())
+
+  character Character @relation(fields: [characterId], references: [id])
+
+  @@unique([characterId, season])
+  @@index([season, score])
+}
+
+model DailyTask {
+  id          String          @id @default(cuid())
+  characterId String
+  title       String
+  description String?
+  status      DailyTaskStatus @default(OPEN)
+  completedAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  character Character @relation(fields: [characterId], references: [id])
+  @@index([characterId, status])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  oauth_token_secret String?
+  oauth_token       String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+}

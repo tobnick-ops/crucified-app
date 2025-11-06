@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Crucified App – Entwicklungsleitfaden
 
-## Getting Started
+## 1. Voraussetzungen
 
-First, run the development server:
+- Node.js 18+ (oder kompatibel mit Next.js 16)
+- npm (Standard) – alternative Paketmanager sind möglich, werden jedoch nicht getestet
+- PostgreSQL 15 (lokal oder via Docker)
+
+## 2. Umgebungsvariablen
+
+1. Kopiere die Vorlage und befülle sie mit deinen Werten:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. Passe mindestens `DATABASE_URL`, `NEXTAUTH_SECRET` und `NEXTAUTH_URL` an.
+
+## 3. Datenbank & Seed-Daten
+
+Die schnellste Variante ist das vorbereitete Setup-Skript:
+
+```bash
+npm run setup:database
+```
+
+Das Skript erledigt folgende Schritte automatisch:
+
+- optionalen PostgreSQL-Docker-Container (Name: `crucified-postgres`) starten oder anlegen
+- `npm install`
+- `prisma generate`
+- `prisma migrate deploy`
+- Seed-Daten (`prisma/seed/index.ts`)
+- Test-Account erstellen (`test@crucified.app` / `Test123456`)
+
+Du kannst jeden Schritt auch manuell ausführen:
+
+```bash
+npm install
+npm run db:generate
+npm run db:migrate
+npm run db:seed
+npm run test:create-account
+```
+
+## 4. Entwicklung starten
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Die App läuft anschließend unter [http://localhost:3000](http://localhost:3000). Das Kommando verwendet bewusst `next dev --webpack`, um klassische Webpack-Erweiterungen (z. B. PWA) zu unterstützen.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 5. Nützliche Skripte
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `npm run db:studio` — Prisma Studio zum manuellen Blick in die Datenbank
+- `npm run db:push` — Schema ohne Migration synchronisieren (nur für Prototypen)
+- `npm run db:migrate` — Migrationen auf eine bestehende Datenbank anwenden
+- `npm run db:seed` — Referenz- und Content-Daten neu einspielen
+- `npm run test:create-account` — Test-Login aktualisieren oder erzeugen
 
-## Learn More
+## 6. Testing-Roadmap
 
-To learn more about Next.js, take a look at the following resources:
+Den jeweils aktuellen Teststatus findest du im Dokument `crucified-app/TESTING_MASTER.md`. Dort sind Frontend- und Backend-Fortschritte, Blocker sowie nächste Schritte detailliert beschrieben.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 7. Weitere Ressourcen
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Next.js App Router Dokumentation: https://nextjs.org/docs
+- Prisma ORM Dokumentation: https://www.prisma.io/docs
+- NextAuth.js Credentials Provider: https://next-auth.js.org/providers/credentials

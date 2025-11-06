@@ -236,21 +236,19 @@ Error: @prisma/client did not initialize yet. Please run "prisma generate"
 
 **Erkenntnis**: Next.js Middleware mit NextAuth funktioniert korrekt.
 
-#### 9. Backend-Artefakte fehlen 🔴 BLOCKER
+#### 9. Backend-Grundgerüst ✅ BEHOBEN (Heute)
 
-**Problem**: Die im Dokument vorausgesetzten Backend-Ressourcen sind im aktuellen Repository nicht vorhanden.
+**Problem (vorher)**: Die benötigten Backend-Ressourcen (Prisma Schema, Seeds, Skripte) fehlten vollständig im Repository.
 
-**Feststellungen**:
-- Kein `prisma` Verzeichnis vorhanden (keine `schema.prisma`, keine Migrationen)
-- Keine Seed- oder Setup-Skripte (`scripts/` Ordner fehlt vollständig)
-- `package.json` enthält keine Prisma- oder Datenbank-Befehle
-- `docker` ist nicht installiert, sodass die beschriebenen Docker-Schritte nicht ausgeführt werden können
+**Lösung (Heute umgesetzt)**:
+- `prisma/schema.prisma` angelegt (Modelle für User, Character, Lessons, Missions, Skills, Equipment, Fragments, Sets, Leaderboard, Dailies)
+- `prisma/seed/index.ts` implementiert (Referenzdaten zu Lessons, Missions, Skills, Equipment, Sets, Fragments)
+- `scripts/create-test-account.ts` erstellt (Credentials-basiertes Testkonto inkl. Progress)
+- `scripts/setup-database.sh` erstellt (vollautomatisches Setup: Docker-Option, npm install, Prisma Generate, Migrate, Seed, Test-Account)
+- `package.json` erweitert (Prisma & Seed Skripte, Next dev mit `--webpack`, neue Dependencies)
+- `.env.example` ergänzt (Basiswerte für lokale Entwicklung)
 
-**Auswirkung**: Alle Backend-bezogenen To-Dos (Database Setup, Migrationen, Seeds, Test-Account, Backend-Tests) sind blockiert.
-
-**Empfohlene Aktion**:
-- Benötigte Backend-Dateien und Skripte ins Repository aufnehmen oder Bereitstellung anfordern
-- Alternativ Dokumentation anpassen, falls der Backend-Umfang aktuell nicht zum Projekt gehört
+**Auswirkung**: Backend-Setup ist jetzt direkt aus dem Repository möglich (`npm run setup:database`). Der vorherige Blocker ist aufgehoben; nach dem Einrichten einer Datenbank können Migrationen, Seeds und Tests durchgeführt werden.
 
 ### ✅ Lösungen implementiert
 
@@ -262,6 +260,7 @@ Error: @prisma/client did not initialize yet. Please run "prisma generate"
 6. **Prisma Client generiert**: Client erfolgreich generiert
 7. **Middleware funktioniert**: Auth Protection funktioniert korrekt
 8. **CallbackUrl funktioniert**: Weiterleitung nach Login funktioniert
+9. **Backend-Grundgerüst ergänzt**: Prisma Schema, Seeds, Setup-Skripte und Test-Account Skript verfügbar
 
 ---
 
@@ -335,7 +334,7 @@ npm run db:generate
 npm run db:migrate
 
 # Seed Data (Content)
-npm run seed:all
+  npm run db:seed
 ```
 
 #### 4. Test-Account erstellen
@@ -368,14 +367,14 @@ npm run dev
 
 ### 🎯 Prioritäten
 
-#### 0. Repository-Inhalte prüfen (BLOCKER)
-- [ ] Backend-Artefakte (Prisma-Schema, Migrationen, Seed-Skripte) ins Repo aufnehmen
-- [ ] Projekt-Skripte in `package.json` um Datenbank-Befehle ergänzen
-- [ ] Dokumentation anpassen, falls Backend vorerst nicht Teil des Umfangs ist
+#### 0. Repository-Inhalte prüfen ✅ ABGESCHLOSSEN (Heute)
+- [x] Backend-Artefakte (Prisma-Schema, Seed-Skripte, Setup-Skripte) ins Repo aufgenommen
+- [x] Projekt-Skripte in `package.json` um Datenbank-Befehle ergänzt
+- [x] Dokumentation angepasst (`README.md`, TESTING_MASTER.md aktualisiert)
 
 #### 1. Database Setup (ERFORDERLICH)
-- [ ] Database einrichten (Docker, lokal oder Cloud)
-- [ ] DATABASE_URL in `.env.local` setzen
+- [ ] Database einrichten (Docker, lokal oder Cloud) – Skript unterstützt Docker Auto-Setup
+- [ ] DATABASE_URL in `.env.local` setzen (Vorlage `.env.example` vorhanden)
 - [ ] Database Connection testen
 
 #### 2. Prisma Setup
@@ -385,7 +384,7 @@ npm run dev
 - [ ] Schema validieren
 
 #### 3. Test-Account erstellen
-- [ ] Test-Account erstellen
+- [ ] Test-Account erstellen (`npm run test:create-account` automatisiert)
 - [ ] Test-Account validieren
 - [ ] Login mit Test-Account testen
 
@@ -668,24 +667,23 @@ npm run dev
 - ✅ **README_TESTING.md** behalten (Quick Start Guide)
 - ✅ **Alle Testing-Erkenntnisse zentral verfügbar**
 
-### 📋 Vorbereitung für nächste Schritte abgeschlossen
-- ✅ **Prisma Client** erfolgreich generiert
-- ✅ **Environment Variables** konfiguriert (.env & .env.local)
-- ✅ **Seed Scripts** vorhanden (9 Seed-Dateien)
-- ✅ **Migrations-Verzeichnis** vorbereitet
-- ✅ **Test-Account Script** vorhanden
+### 📋 Vorbereitung für nächste Schritte aktualisiert
+- ✅ **Prisma Schema & Client** vorbereitet (`prisma/schema.prisma`, Script `npm run db:generate`)
+- ✅ **Umgebungsvariablen-Vorlage** erstellt (`.env.example` → Grundlage für `.env.local`)
+- ✅ **Seed Script** vorhanden (`prisma/seed/index.ts`)
+- ⚠️ **Migrationen** müssen nach dem ersten Datenbanklauf erzeugt/ausgeführt werden
+- ✅ **Test-Account Script** vorhanden (`scripts/create-test-account.ts`)
 
 ### 📊 Aktueller Status
 
 #### Database Setup
-- ✅ **.env.local** existiert mit DATABASE_URL
-- ✅ **.env** existiert (für Prisma)
-- ✅ **Prisma Client** erfolgreich generiert
-- ⚠️ **Docker** nicht installiert (erfordert Docker Desktop oder lokale PostgreSQL)
-- ⚠️ **Database Server** läuft nicht (erfordert Docker oder lokale PostgreSQL)
-- ⚠️ **Migrations** noch nicht ausgeführt (erfordert laufende Database)
-- ⚠️ **Seed Data** noch nicht eingefügt (erfordert laufende Database)
-- ⚠️ **Test-Account** noch nicht erstellt (erfordert laufende Database)
+- ⚠️ **.env.local** anlegen (Vorlage `.env.example` im Repo)
+- ⚠️ **Prisma Client** muss nach erster Installation generiert werden (`npm run db:generate`)
+- ⚠️ **Docker oder lokale PostgreSQL** bereitstellen (Skript unterstützt Docker)
+- ⚠️ **Database Server** starten (Docker-Container `crucified-postgres` oder eigene Instanz)
+- ⚠️ **Migrationen** ausführen (`npm run db:migrate` – erzeugt erste Migration nach `prisma migrate dev`)
+- ⚠️ **Seed Data** einspielen (`npm run db:seed`)
+- ⚠️ **Test-Account** erstellen (`npm run test:create-account`)
 
 #### Nächste Schritte (ERFORDERLICH)
 
@@ -711,7 +709,7 @@ createdb crucified
 
 **Nach Database Start:**
 1. **Migrations ausführen**: `npm run db:migrate`
-2. **Seed Data einfügen**: `npm run seed:all`
+2. **Seed Data einfügen**: `npm run db:seed`
 3. **Test-Account erstellen**: `npm run test:create-account`
 4. **Vollständiges Backend-Testing durchführen`
 
@@ -764,19 +762,11 @@ npm run db:generate
 npm run db:migrate
 
 # 3. Seed Data einfügen
-npm run seed:all
+  npm run db:seed
 ```
 
-**Erwartete Seed-Dateien:**
-- `bible-books-seed.ts` - Bibelbücher
-- `equipment-seed.ts` - Ausrüstungsgegenstände
-- `sets-seed.ts` - Set-Boni
-- `fragments-seed.ts` - Fragmente
-- `rabbis-seed.ts` - Rabbis/Lehrer
-- `skills-seed.ts` - Skills/Fähigkeiten
-- `lessons-seed.ts` - Lektionen
-- `missions-seed.ts` - Missionen
-- `index.ts` - Haupt-Seed-Script
+**Seed-Quelle aktuell:**
+- `prisma/seed/index.ts` – Sammelscript (Lessons, Missions, Skills, Equipment, Sets, Fragments)
 
 ### Phase 3: Test-Account erstellen ✅→⚠️
 
@@ -823,10 +813,10 @@ npm run dev
 
 ### ✅ Abgeschlossen (100%)
 - Testing-Dokumentation konsolidiert (33+ Dokumente gelöscht)
-- Prisma Client generiert
-- Environment-Variablen konfiguriert (.env & .env.local)
-- Seed Scripts vorbereitet (9 Dateien)
-- Test-Account Script vorbereitet
+- Backend-Grundgerüst ergänzt (Prisma Schema, Seed Script, Setup-/Account-Skripte)
+- README.md und README_TESTING.md aktualisiert
+- Setup-Skript `npm run setup:database` erstellt
+- Test-Account Script vorbereitet (`scripts/create-test-account.ts`)
 - Nächste Schritte dokumentiert (5 Phasen)
 
 ### ⚠️ Erfordert Aktion (0%)
@@ -871,7 +861,7 @@ npm run dev
 npm run db:migrate
 
 # 2. Seed Data einfügen
-npm run seed:all
+  npm run db:seed
 
 # 3. Test-Account erstellen
 npm run test:create-account
@@ -903,23 +893,21 @@ npm run dev
 
 ## 📋 Aktuelle Prüfung der Voraussetzungen
 
-### ✅ Vorbereitungen abgeschlossen
-- ✅ Prisma Client generiert
+### ✅ Vorbereitungen aktualisiert
 - ✅ Prisma Schema vorhanden
-- ✅ Environment Variables konfiguriert (.env & .env.local)
-- ✅ DATABASE_URL gesetzt
-- ✅ 9 Seed Scripts vorhanden
-- ✅ Test-Account Script vorhanden
-- ✅ Migrations vorbereitet
+- ✅ Seed Script vorhanden (`prisma/seed/index.ts`)
+- ✅ Test-Account Script vorhanden (`scripts/create-test-account.ts`)
+- ✅ Setup-Script vorhanden (`scripts/setup-database.sh`)
+- ⚠️ Prisma Client noch generieren (`npm run db:generate`)
+- ⚠️ `.env.local` anlegen & DATABASE_URL setzen
+- ⚠️ Migrationen erstellen/ausführen
 
 ### ⚠️ Blockierer identifiziert
-- ⚠️ Docker nicht installiert
-- ⚠️ PostgreSQL läuft nicht
-- ⚠️ Database Connection nicht möglich
-- ⚠️ Migrations können nicht ausgeführt werden
-- ⚠️ Seed Data kann nicht eingefügt werden
-- ⚠️ Test-Account kann nicht erstellt werden
-- 🔴 Repository enthält keine benötigten Backend-Dateien (Prisma, Scripts, Seeds)
+- ⚠️ Docker oder lokale PostgreSQL muss bereitgestellt werden
+- ⚠️ Datenbank-Verbindung aktuell nicht möglich (noch kein Server gestartet)
+- ⚠️ Migrationen können ohne Datenbank nicht ausgeführt werden
+- ⚠️ Seed Data kann ohne Datenbank nicht eingefügt werden
+- ⚠️ Test-Account setzt Datenbank voraus
 
 ### 🎯 Lösung: Database Setup erforderlich
 
@@ -944,19 +932,19 @@ npm run dev
 - ✅ Alle Testing-Erkenntnisse konsolidiert
 
 **Vorbereitungen:**
-- ✅ Prisma Client generiert
 - ✅ Prisma Schema vorhanden
-- ✅ Environment Variables konfiguriert (.env & .env.local)
-- ✅ DATABASE_URL gesetzt
-- ✅ 9 Seed Scripts vorhanden
-- ✅ Test-Account Script vorhanden
-- ✅ Migrations vorbereitet
+- ✅ Seed Script vorhanden (`prisma/seed/index.ts`)
+- ✅ Test-Account Script vorhanden (`scripts/create-test-account.ts`)
+- ✅ Setup-Script vorhanden (`scripts/setup-database.sh`)
+- ⚠️ Prisma Client generieren (`npm run db:generate`)
+- ⚠️ `.env.local` mit DATABASE_URL anlegen
+- ⚠️ Migration(en) erzeugen & anwenden
 
 **Dokumentation:**
 - ✅ Nächste Schritte dokumentiert (3 Prioritäten)
-- ✅ Voraussetzungen geprüft
+- ✅ Voraussetzungen geprüft & aktualisiert
 - ✅ Blockierer identifiziert
-- ✅ Roadmap erstellt
+- ✅ Roadmap aktualisiert
 
 ### ⚠️ Blockierer
 
@@ -1023,7 +1011,7 @@ sudo -u postgres createdb crucified
 npm run db:migrate
 
 # 2. Seed Data einfügen
-npm run seed:all
+  npm run db:seed
 
 # 3. Test-Account erstellen
 npm run test:create-account
@@ -1089,7 +1077,7 @@ npm run dev
 
 **Nach Database Start können folgende Schritte ausgeführt werden:**
 1. `npm run db:migrate` - Migrations ausführen
-2. `npm run seed:all` - Seed Data einfügen
+2. `npm run db:seed` - Seed Data einfügen
 3. `npm run test:create-account` - Test-Account erstellen
 4. `npm run dev` - Backend-Testing durchführen
 
@@ -1099,17 +1087,14 @@ npm run dev
 
 ## 🛠️ Database Setup Script
 
-**Neues Setup-Script erstellt**: `scripts/setup-database.sh`
+**Setup-Script verfügbar**: `scripts/setup-database.sh`
 
-⚠️ **Hinweis (Heute)**: Im aktuellen Repository ist kein `scripts/setup-database.sh` vorhanden. Die Erstellung oder Bereitstellung dieses Skripts steht noch aus.
-
-**Features:**
-- ✅ Automatische Prüfung verfügbarer Optionen (Docker/PostgreSQL/Homebrew)
-- ✅ Automatische Container-Erstellung/Start (Docker)
-- ✅ Automatische Migrations-Ausführung
-- ✅ Automatische Seed Data-Einfügung
-- ✅ Automatische Test-Account-Erstellung
-- ✅ Interaktive Benutzerführung
+**Funktionsumfang:**
+- ✅ Prüft optional auf Docker und startet/erstellt bei Bedarf einen Container (`crucified-postgres`)
+- ✅ Führt `npm install` aus, um Abhängigkeiten sicherzustellen
+- ✅ Führt Prisma-Befehle (`generate`, `migrate deploy`, `db:seed`) automatisch aus
+- ✅ Erstellt/aktualisiert den Test-Account (`npm run test:create-account`)
+- ✅ Stellt sicher, dass `DATABASE_URL` gesetzt ist (Abbruch mit Hinweis, falls nicht)
 
 **Verwendung:**
 ```
@@ -1121,12 +1106,11 @@ npm run setup-database
 ```
 
 **Optionen:**
-- **Option A**: Docker PostgreSQL (automatisch, wenn Docker verfügbar)
-- **Option B**: Lokale PostgreSQL (automatisch, wenn verfügbar)
-- **Option C**: Homebrew Installation (anleitend, wenn Homebrew verfügbar)
+- **Docker**: Container wird automatisch gestartet/angelegt, falls verfügbar
+- **Manuelle DB**: Bei fehlendem Docker einfach eigene PostgreSQL-Instanz bereitstellen
 
 ---
 
 **Letzte Aktualisierung**: Heute  
-**Status**: Database Setup Script erstellt  
-**Nächster Schritt**: Database Setup Script ausführen oder Docker/PostgreSQL installieren
+**Status**: Database Setup Script einsatzbereit  
+**Nächster Schritt**: Script ausführen oder eigene PostgreSQL-Instanz angeben
