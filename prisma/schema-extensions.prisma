@@ -1,0 +1,241 @@
+// Schema Extensions für GAMEREADY Features
+// Füge diese Modelle zum main schema.prisma hinzu
+
+// ========== STREAK SYSTEM ENHANCEMENT ==========
+model StreakData {
+  id                String   @id @default(cuid())
+  characterId       String   @unique @map("character_id")
+  
+  // Login Streak (bereits vorhanden im DailyCurrency, aber hier detaillierter)
+  loginStreak       Int      @default(0) @map("login_streak")
+  longestLoginStreak Int     @default(0) @map("longest_login_streak")
+  
+  // Lesson Streak (NEU)
+  lessonStreak      Int      @default(0) @map("lesson_streak")
+  longestLessonStreak Int    @default(0) @map("longest_lesson_streak")
+  lastLessonDate    DateTime? @map("last_lesson_date")
+  
+  // Mission Streak (NEU)
+  missionStreak     Int      @default(0) @map("mission_streak")
+  longestMissionStreak Int   @default(0) @map("longest_mission_streak")
+  lastMissionDate   DateTime? @map("last_mission_date")
+  
+  // Streak Recovery (NEU)
+  streakFreezes     Int      @default(1) @map("streak_freezes") // 1 free per month
+  lastFreezeUsed    DateTime? @map("last_freeze_used")
+  
+  // Milestones Achieved
+  milestones        Json     @default("[]") // Array von erreichten Milestones
+  
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  @@map("streak_data")
+}
+
+// ========== ACHIEVEMENT SYSTEM ==========
+model Achievement {
+  id            String   @id @default(cuid())
+  key           String   @unique // z.B. "first_lesson", "level_10"
+  name          String
+  description   String   @db.Text
+  category      AchievementCategory
+  icon          String   @default("🏆")
+  requirement   Int      // Wert für Completion (z.B. 10 Lessons)
+  rewardXp      Int      @default(0) @map("reward_xp")
+  isSecret      Boolean  @default(false) @map("is_secret")
+  
+  // Relations
+  unlocks       CharacterAchievement[]
+  
+  @@map("achievements")
+}
+
+enum AchievementCategory {
+  LEARNING      // Lessons completed, XP earned
+  EXPLORATION   // Missions completed, areas explored
+  COLLECTION    // Fragments unlocked, sets completed
+  SOCIAL        // Friends added, challenges won
+  MASTER        // High-level achievements, 100% completion
+}
+
+model CharacterAchievement {
+  id            String   @id @default(cuid())
+  characterId   String   @map("character_id")
+  achievementId String   @map("achievement_id")
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+  
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@map("character_achievements")
+  @@unique([characterId, achievementId])
+  @@index([characterId])
+}
+
+// ========== DAILY/WEEKLY QUEST SYSTEM ==========
+model Quest {
+  id            String   @id @default(cuid())
+  type          QuestType
+  title         String
+  description   String   @db.Text
+  requirement   Json     // { type: "complete_lessons", value: 3 }
+  rewardXp      Int      @map("reward_xp")
+  rewardGold    Int      @default(0) @map("reward_gold")
+  isActive      Boolean  @default(true) @map("is_active")
+  
+  // Date Range für Weekly Quests
+  startsAt      DateTime? @map("starts_at")
+  endsAt        DateTime? @map("ends_at")
+  
+  @@map("quests")
+}
+
+enum QuestType {
+  DAILY
+  WEEKLY
+}
+
+model CharacterQuest {
+  id            String   @id @default(cuid())
+  characterId   String   @map("character_id")
+  questId       String   @map("quest_id")
+  progress      Int      @default(0)
+  isCompleted   Boolean  @default(false) @map("is_completed")
+  completedAt   DateTime? @map("completed_at")
+  
+  @@map("character_quests")
+  @@unique([characterId, questId])
+  @@index([characterId])
+  @@index([questId])
+}
+
+// ========== SOCIAL FEATURES FOUNDATION ==========
+model Friendship {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  friendId    String   @map("friend_id")
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  @@map("friendships")
+  @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+model Challenge {
+  id            String   @id @default(cuid())
+  creatorId     String   @map("creator_id")
+  challengedId  String   @map("challenged_id")
+  type          ChallengeType
+  target        Int      // z.B. 10 Lessons
+  status        ChallengeStatus @default(PENDING)
+  creatorProgress Int    @default(0) @map("creator_progress")
+  challengedProgress Int @default(0) @map("challenged_progress")
+  winnerId      String?  @map("winner_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  endsAt        DateTime @map("ends_at")
+  
+  @@map("challenges")
+  @@index([creatorId])
+  @@index([challengedId])
+}
+
+enum ChallengeType {
+  LESSONS
+  MISSIONS
+  XP
+}
+
+enum ChallengeStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  EXPIRED
+}
+
+model Guild {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String   @db.Text
+  leaderId    String   @map("leader_id")
+  memberCount Int      @default(1) @map("member_count")
+  totalXp     Int      @default(0) @map("total_xp")
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  members     GuildMember[]
+  
+  @@map("guilds")
+}
+
+model GuildMember {
+  id          String   @id @default(cuid())
+  guildId     String   @map("guild_id")
+  characterId String   @map("character_id")
+  role        GuildRole @default(MEMBER)
+  xpContributed Int    @default(0) @map("xp_contributed")
+  joinedAt    DateTime @default(now()) @map("joined_at")
+  
+  guild       Guild    @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  
+  @@map("guild_members")
+  @@unique([guildId, characterId])
+  @@index([guildId])
+  @@index([characterId])
+}
+
+enum GuildRole {
+  LEADER
+  OFFICER
+  MEMBER
+}
+
+// ========== ANALYTICS & TRACKING ==========
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  event      String
+  properties Json?
+  userId     String?  @map("user_id")
+  sessionId  String?  @map("session_id")
+  timestamp  DateTime @default(now())
+  
+  @@map("analytics_events")
+  @@index([event])
+  @@index([userId])
+  @@index([timestamp])
+}
+
+// ========== USER PREFERENCES ==========
+model UserPreferences {
+  id                String   @id @default(cuid())
+  userId            String   @unique @map("user_id")
+  
+  // Personalization
+  dailyGoal         Int      @default(3) @map("daily_goal") // Lessons per day
+  difficulty        String   @default("adaptive") // "easy", "medium", "hard", "adaptive"
+  
+  // UI/UX Preferences
+  theme             String   @default("auto") // "light", "dark", "auto"
+  fontSize          String   @default("medium") // "small", "medium", "large"
+  reducedMotion     Boolean  @default(false) @map("reduced_motion")
+  soundEnabled      Boolean  @default(true) @map("sound_enabled")
+  
+  // Notifications
+  emailNotifications Boolean @default(true) @map("email_notifications")
+  pushNotifications  Boolean @default(true) @map("push_notifications")
+  
+  // Privacy
+  profilePublic     Boolean  @default(false) @map("profile_public")
+  showOnLeaderboard Boolean  @default(true) @map("show_on_leaderboard")
+  
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  @@map("user_preferences")
+}
+

@@ -1,6 +1,10 @@
-// Card Component gemäß Masterplan Design System
+// Card Component - ENHANCED mit Micro-Interactions
+// Smooth hover effects und besser Interaktivität
+
+'use client';
 
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface CardProps {
   children: React.ReactNode;
@@ -10,10 +14,21 @@ interface CardProps {
 
 export const Card: React.FC<CardProps> = ({ children, className = '', hover = false }) => {
   const baseStyles = 'bg-white dark:bg-gray-800 rounded-lg border border-[var(--border-color)] p-6';
-  const hoverStyles = hover ? 'transition-all duration-200 hover:shadow-lg hover:border-[var(--color-temple-gold)] cursor-pointer' : '';
+  
+  if (hover) {
+    return (
+      <motion.div
+        whileHover={{ scale: 1.02, y: -4 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        className={`${baseStyles} shadow-md hover:shadow-xl hover:border-[var(--color-temple-gold)] cursor-pointer ${className}`}
+      >
+        {children}
+      </motion.div>
+    );
+  }
   
   return (
-    <div className={`${baseStyles} ${hoverStyles} ${className}`}>
+    <div className={`${baseStyles} ${className}`}>
       {children}
     </div>
   );

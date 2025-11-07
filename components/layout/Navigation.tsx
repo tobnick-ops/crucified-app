@@ -14,14 +14,14 @@ export const Navigation: React.FC = () => {
   const isActive = (path: string) => pathname === path;
 
   const navItems = [
+    { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
     { href: '/character', label: 'Charakter', icon: '👤' },
-    { href: '/character/equipment', label: 'Ausrüstung', icon: '⚔️' },
-    { href: '/character/skills', label: 'Fähigkeiten', icon: '🌟' },
     { href: '/lessons', label: 'Lektionen', icon: '📖' },
     { href: '/missions', label: 'Missionen', icon: '🎮' },
-    { href: '/collection', label: 'Sammelbuch', icon: '📚' },
-    { href: '/daily', label: 'Täglich', icon: '📅' },
-    { href: '/leaderboard', label: 'Leaderboard', icon: '🏆' },
+    { href: '/collection', label: 'Sammlung', icon: '📚' },
+    { href: '/achievements', label: 'Erfolge', icon: '🏆' },
+    { href: '/quests', label: 'Quests', icon: '📋' },
+    { href: '/leaderboard', label: 'Rangliste', icon: '🏅' },
   ];
 
   if (!session) {

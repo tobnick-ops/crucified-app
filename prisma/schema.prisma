@@ -487,3 +487,119 @@ model Leaderboard {
   @@index([rankCategory, totalStrength])
   @@index([rank])
 }
+
+// ============================================
+// GAMEREADY Features - New Models
+// ============================================
+
+// Achievement System
+model Achievement {
+  id            String   @id @default(cuid())
+  key           String   @unique
+  name          String
+  description   String   @db.Text
+  category      AchievementCategory
+  icon          String   @default("🏆")
+  requirement   Int
+  rewardXp      Int      @default(0) @map("reward_xp")
+  isSecret      Boolean  @default(false) @map("is_secret")
+  
+  unlocks       CharacterAchievement[]
+  
+  @@map("achievements")
+}
+
+enum AchievementCategory {
+  LEARNING
+  EXPLORATION
+  COLLECTION
+  SOCIAL
+  MASTER
+}
+
+model CharacterAchievement {
+  id            String   @id @default(cuid())
+  characterId   String   @map("character_id")
+  achievementId String   @map("achievement_id")
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+  
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+  
+  @@map("character_achievements")
+  @@unique([characterId, achievementId])
+  @@index([characterId])
+}
+
+// Quest System
+model Quest {
+  id            String   @id @default(cuid())
+  type          QuestType
+  title         String
+  description   String   @db.Text
+  requirement   Json
+  rewardXp      Int      @map("reward_xp")
+  rewardGold    Int      @default(0) @map("reward_gold")
+  isActive      Boolean  @default(true) @map("is_active")
+  startsAt      DateTime? @map("starts_at")
+  endsAt        DateTime? @map("ends_at")
+  
+  @@map("quests")
+}
+
+enum QuestType {
+  DAILY
+  WEEKLY
+}
+
+model CharacterQuest {
+  id            String   @id @default(cuid())
+  characterId   String   @map("character_id")
+  questId       String   @map("quest_id")
+  progress      Int      @default(0)
+  isCompleted   Boolean  @default(false) @map("is_completed")
+  completedAt   DateTime? @map("completed_at")
+  
+  @@map("character_quests")
+  @@unique([characterId, questId])
+  @@index([characterId])
+  @@index([questId])
+}
+
+// Social Features
+model Friendship {
+  id          String   @id @default(cuid())
+  userId      String   @map("user_id")
+  friendId    String   @map("friend_id")
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime @default(now()) @map("created_at")
+  
+  @@map("friendships")
+  @@unique([userId, friendId])
+  @@index([userId])
+  @@index([friendId])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+// User Preferences
+model UserPreferences {
+  id                String   @id @default(cuid())
+  userId            String   @unique @map("user_id")
+  dailyGoal         Int      @default(3) @map("daily_goal")
+  difficulty        String   @default("adaptive")
+  theme             String   @default("auto")
+  fontSize          String   @default("medium")
+  reducedMotion     Boolean  @default(false) @map("reduced_motion")
+  soundEnabled      Boolean  @default(true) @map("sound_enabled")
+  emailNotifications Boolean @default(true) @map("email_notifications")
+  pushNotifications  Boolean @default(true) @map("push_notifications")
+  profilePublic     Boolean  @default(false) @map("profile_public")
+  showOnLeaderboard Boolean  @default(true) @map("show_on_leaderboard")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+  
+  @@map("user_preferences")
+}

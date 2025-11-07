@@ -25,10 +25,10 @@ export default function HomePage() {
       setFeedbackModalOpen(true);
     }
 
-    // Redirect authenticated users
+    // Redirect authenticated users to Dashboard
     if (status === 'authenticated' && session) {
       // Check if user has character (client-side redirect handled by server)
-      router.push('/character');
+      router.push('/dashboard');
     }
   }, [status, session, router, searchParams]);
 

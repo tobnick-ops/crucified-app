@@ -60,6 +60,36 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Accessibility: Focus Styles */
+*:focus-visible {
+  outline: 3px solid var(--color-temple-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Accessibility: High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  :root {
+    --border-color: #000000;
+  }
+  
+  body {
+    border: 2px solid currentColor;
+  }
+}
+
 /* Utility Classes */
 .temple-gradient {
   background: linear-gradient(135deg, var(--color-temple-gold) 0%, var(--color-temple-gold-dark) 100%);
