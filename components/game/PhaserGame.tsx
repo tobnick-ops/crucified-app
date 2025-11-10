@@ -137,7 +137,7 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({
               }
             } else if (obj.objectiveType === 'interact') {
               // Spawn NPCs for interaction - GANZ DEUTLICH SICHTBAR!
-              // Pharao steht direkt LINKS neben dem Character (sichtbar beim Start!)
+              // NPC steht direkt LINKS neben dem Character (sichtbar beim Start!)
               const x = 350; // Direkt links vom Character (512 - 162 = 350)
               const y = 384; // Gleiche Höhe wie Character
               const npc = this.physics.add.sprite(x, y, 'npc');
@@ -145,8 +145,11 @@ export const PhaserGame: React.FC<PhaserGameProps> = ({
               npc.setData('objectiveId', obj.id);
               npc.setData('interacted', false);
 
+              // Dynamischer NPC-Name aus Objective-Daten (z.B. "Noah", "Mose", etc.)
+              const npcName = obj.targetNpc || obj.description?.split(' ')[0] || 'NPC';
+              
               // Großer Hinweis-Text über dem NPC
-              const interactionText = this.add.text(x, y - 50, 'PHARAO\nE drücken', {
+              const interactionText = this.add.text(x, y - 50, `${npcName}\nE drücken`, {
                 fontSize: '16px',
                 color: '#ffffff',
                 backgroundColor: '#9B59BF',

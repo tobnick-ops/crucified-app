@@ -9,6 +9,9 @@ export interface CharacterWithStats {
   level: number;
   experience: number;
   strength: number;
+  totalStrength: number;
+  currentXp: number;
+  xpForNextLevel: number;
   stats: {
     faith: number;
     wisdom: number;
@@ -148,12 +151,20 @@ export async function getCharacterWithStats(characterId: string): Promise<Charac
     return null;
   }
 
+  const xpForCurrentLevel = getXPForLevel(character.level);
+  const xpForNextLevelTotal = getXPForLevel(character.level + 1);
+  const currentXp = Math.max(0, character.experience - xpForCurrentLevel);
+  const xpForNextLevel = Math.max(1, xpForNextLevelTotal - xpForCurrentLevel);
+
   return {
     id: character.id,
     name: character.name,
     level: character.level,
     experience: character.experience,
     strength: character.strength,
+    totalStrength: character.stats.totalStrength,
+    currentXp,
+    xpForNextLevel,
     stats: {
       faith: character.stats.faith,
       wisdom: character.stats.wisdom,

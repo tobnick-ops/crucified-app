@@ -20,14 +20,14 @@
 
 | Kategorie | Vorher | Ziel | Erreicht | Status |
 |-----------|--------|------|----------|--------|
-| **Lessons** | 14 | 150+ | **151** | ✅ 101% |
-| **Missions** | 3 | 15+ | **15** | ✅ 100% |
+| **Lessons** | 14 | 150+ | **156** | ✅ 104% |
+| **Missions** | 3 | 15+ | **21** | ✅ 140% |
 | **Equipment** | 11 | 50+ | **54** | ✅ 108% |
-| **Fragments** | 11 | 60+ | **60** | ✅ 100% |
+| **Fragments** | 11 | 60+ | **68** | ✅ 113% |
 
 **Content-Details:**
 
-📖 **151 Lektionen** (137 neue erstellt!)
+📖 **156 Lektionen** (142 neue erstellt!)
 - Part 1: Evangelien & 1.Kor (11 Lessons)
 - Part 2: Paulus-Briefe (25 Lessons)
 - Part 3: Thessalonicher & Pastoral-Briefe (10 Lessons)
@@ -39,7 +39,7 @@
 - Part 9: Große Propheten (17 Lessons)
 - **Alle 66 Bibelbücher abgedeckt!**
 
-🎮 **15 Missionen** (12 neue!)
+🎮 **21 Missionen** (18 neue!)
 - Story-Arc Exodus: 3 Missionen (Zehn Plagen, Rotes Meer, Stiftshütte)
 - Story-Arc Jesus: 3 Missionen (Hochzeit zu Kana, Speisung 5000, Sturm)
 - Story-Arc Apostelgeschichte: 2 Missionen (Pfingsten, Paulus in Philippi)
@@ -53,7 +53,7 @@
 - 5 Equipment-Sets komplett
 - Common: 20, Uncommon: 12, Rare: 10, Epic: 5, Legendary: 4, Artifact: 3
 
-📚 **60 Fragmente** (49 neue!)
+📚 **68 Fragmente** (57 neue!)
 - Charaktere: 20 (Abraham, Salomo, Elia, Johannes, Maria, etc.)
 - Orte: 15 (Jerusalem, Bethlehem, Golgatha, Eden, etc.)
 - Konzepte: 15 (Erlösung, Rechtfertigung, Hoffnung, etc.)

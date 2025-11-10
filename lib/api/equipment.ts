@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { ITEM_RARITY, EQUIPMENT_SLOTS } from '@/lib/game/constants';
+import { applyQuestProgress } from '@/lib/api/questProgress';
 
 export interface EquipmentItem {
   id: string;
@@ -101,6 +102,8 @@ export async function equipItem(characterId: string, equipmentId: string, slot: 
     },
   });
 
+  let createdNewItem = false;
+
   if (existingItem) {
     // Item bereits vorhanden, equip it
     await prisma.characterEquipment.update({
@@ -120,10 +123,20 @@ export async function equipItem(characterId: string, equipmentId: string, slot: 
         isEquipped: true,
       },
     });
+
+    createdNewItem = true;
   }
 
   // Recalculate Total Strength
   await recalculateCharacterStrength(characterId);
+
+  const questUpdates = [{ type: 'equip_item' as const, amount: 1 }];
+
+  if (createdNewItem) {
+    questUpdates.push({ type: 'obtain_equipment' as const, amount: 1 });
+  }
+
+  await applyQuestProgress(characterId, questUpdates);
 }
 
 /**

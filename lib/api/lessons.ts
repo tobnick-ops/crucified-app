@@ -2,6 +2,8 @@
 
 import { prisma } from '@/lib/prisma';
 import { GAME_CONFIG } from '@/lib/game/constants';
+import { syncCharacterAchievements } from './achievements';
+import { applyQuestProgress } from './questProgress';
 
 export interface Lesson {
   id: string;
@@ -77,6 +79,8 @@ export async function getAvailableLessons(characterId: string) {
       { requiredLevel: 'asc' },
       { title: 'asc' },
     ],
+    // DEDUPLIZIERUNG: Nur erste Lektion pro Titel nehmen
+    distinct: ['title'],
   });
 
   // Check which lessons are completed today
@@ -132,6 +136,8 @@ export async function completeLesson(
   experienceGained: number;
   leveledUp: boolean;
   newLevel: number;
+  achievementsUnlocked: string[];
+  achievementXpGained: number;
 }> {
   // Load lesson with questions
   const lesson = await prisma.lesson.findUnique({
@@ -257,11 +263,28 @@ export async function completeLesson(
   const { addXP } = await import('./character');
   const xpResult = await addXP(characterId, experienceGained);
 
+  await applyQuestProgress(characterId, [
+    { type: 'complete_lessons', amount: 1 },
+    { type: 'lessons_and_missions', amount: 1 },
+    ...(score >= 100 ? [{ type: 'perfect_lesson', amount: 1 }] : []),
+  ]);
+
+  const achievementSync = await syncCharacterAchievements(characterId);
+  let finalXpResult = xpResult;
+  let achievementXpGained = 0;
+
+  if (achievementSync.totalRewardXp > 0) {
+    achievementXpGained = achievementSync.totalRewardXp;
+    finalXpResult = await addXP(characterId, achievementXpGained);
+  }
+
   return {
     score,
     experienceGained,
-    leveledUp: xpResult.leveledUp,
-    newLevel: xpResult.newLevel,
+    leveledUp: xpResult.leveledUp || finalXpResult.leveledUp,
+    newLevel: finalXpResult.newLevel,
+    achievementsUnlocked: achievementSync.newlyUnlockedIds,
+    achievementXpGained,
   };
 }
 

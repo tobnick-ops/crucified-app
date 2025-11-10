@@ -69,7 +69,9 @@ export default function AchievementsPage() {
 
   const unlockedCount = achievements.filter(a => a.isUnlocked).length;
   const totalCount = achievements.length;
-  const completionPercentage = Math.round((unlockedCount / totalCount) * 100);
+  const completionPercentage = totalCount > 0
+    ? Math.round((unlockedCount / totalCount) * 100)
+    : 0;
 
   const categories: Array<{ key: Category; label: string; icon: string }> = [
     { key: 'ALL', label: 'Alle', icon: '🏆' },

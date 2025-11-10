@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { calculateMissionDuration } from '@/lib/game/formulas';
+import { applyQuestProgress } from './questProgress';
 
 export interface Mission {
   id: string;
@@ -251,6 +252,11 @@ export async function updateMissionProgress(
         const { addXP } = await import('./character');
         await addXP(characterId, mission.experienceReward);
 
+        await applyQuestProgress(characterId, [
+          { type: 'complete_missions', amount: 1 },
+          { type: 'lessons_and_missions', amount: 1 },
+        ]);
+
         // Update leaderboard
         const { updateLeaderboard } = await import('./leaderboard');
         await updateLeaderboard(characterId);
@@ -279,6 +285,11 @@ export async function updateMissionProgress(
                 fragmentId: fragment.id,
               },
             });
+
+            await applyQuestProgress(characterId, [
+              { type: 'unlock_fragment', amount: 1 },
+              { type: 'unlock_fragments', amount: 1 },
+            ]);
           }
         }
       }

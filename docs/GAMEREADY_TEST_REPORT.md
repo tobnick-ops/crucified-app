@@ -2,7 +2,7 @@
 
 **Datum**: 7. November 2025  
 **Tester**: AI Code Analysis + User Browser Testing  
-**Status**: Initial Analysis Complete, Manual Testing Required
+**Status**: Technische Blocking-Issues behoben, manuelle Tests in Arbeit
 
 ---
 
@@ -10,11 +10,11 @@
 
 **Implementation Status**: 100% Complete (alle Features implementiert)  
 **Code Quality**: Hoch (konsistent, gut strukturiert)  
-**Testing Status**: Automatische Code-Analyse durchgeführt  
-**Manual Testing**: **BENÖTIGT - User muss im Browser testen**
+**Testing Status**: Automatische Code-Analyse durchgeführt, Quick-Smoke-Tests noch offen  
+**Manual Testing**: **Laufend – Smoke Tests & vollständige Browser-Checkliste stehen an**
 
-**Kritische Punkte identifiziert: 8**  
-**Empfehlungen: 12**
+**Kritische Punkte offen: 2** (nur noch QA/UX)  
+**Empfehlungen aktiv: 6**
 
 ---
 
@@ -62,60 +62,32 @@
 
 ### KRITISCH (P0) - Muss vor Launch funktionieren
 
-#### 1. Database Schema Mismatch ❌
-**Problem**: `schema-extensions.prisma` enthält neue Models (Achievement, Quest, etc.) aber diese sind NICHT im main `schema.prisma`!
+#### ✅ Gelöst: Database Schema Mismatch
+- Alle Models sind in `prisma/schema.prisma` integriert, Migration `gameready_features` ausgeführt.
+- Seed- und API-Layer arbeiten mit dem erweiterten Schema.
 
-**Impact**: API Routes für Achievements/Quests werden 404/500 Errors werfen
+#### ✅ Gelöst: Fehlende API Routes
+- `/api/achievements`, `/api/quests`, `/api/user/preferences` u. a. sind implementiert und geben Daten zurück.
+- Folge-APIs (Equipment, Fragments, Character Stats) liefern zusammenhängende Dashboards.
 
-**Fix benötigt**:
-```prisma
-// Die Models aus schema-extensions.prisma müssen
-// in prisma/schema.prisma integriert werden!
+#### ✅ Gelöst: Navigation Links
+- `components/layout/Navigation.tsx` enthält jetzt Verlinkungen zu Dashboard, Achievements, Quests, Friends, Settings.
 
-model Achievement { ... }
-model CharacterAchievement { ... }
-model Quest { ... }
-model CharacterQuest { ... }
-model StreakData { ... }
-model Friendship { ... }
-model Challenge { ... }
-model Guild { ... }
-model GuildMember { ... }
-model AnalyticsEvent { ... }
-model UserPreferences { ... }
-```
+#### 🟡 Offen: Manuelle QA & Daten-Sync
+- Quick Smoke Tests (`docs/SYSTEMATIC_TEST_STRATEGY.md`, Batch 1) sind einzuplanen.
+- Visuelle Validierung der neuen Dashboards/Achievements im Browser (Screenshots, Regressionen) steht aus.
+- Quest-Progress wird bereits für Equipments aktualisiert; weitere Trigger (Lessons, Missions, Fragments) folgen.
 
-**Lösung**:
-1. Models von `schema-extensions.prisma` nach `schema.prisma` kopieren
-2. `npx prisma generate`
-3. `npx prisma migrate dev --name gameready_features`
+---
 
-#### 2. API Routes fehlen ❌
-**Problem**: Viele neue API Routes sind referenced aber nicht implementiert:
-- `/api/achievements` (GET) ❌
-- `/api/quests` (GET) ❌
-- `/api/user/preferences` (GET/POST) ❌
-- `/api/recommendations/lessons` (GET) ❌
-- `/api/social/friends/[id]/accept` (POST) ❌
+## 📌 Aktuelle Empfehlungen
 
-**Impact**: Pages laden, aber API calls fail → Empty States
-
-**Fix benötigt**: Implementiere fehlende API Routes
-
-#### 3. Navigation Links ❌
-**Problem**: `components/layout/Navigation.tsx` hat keine Links zu neuen Pages
-
-**Current Nav Items**:
-- Character, Equipment, Skills, Lessons, Missions, Collection, Daily, Leaderboard
-
-**Missing**:
-- Dashboard
-- Achievements
-- Quests
-- Friends/Social
-- Settings
-
-**Fix benötigt**: Update Navigation Component
+1. **Smoke Tests durchführen:** `node test-runner-interactive.js` → Batch 1 abschließen und Ergebnisse in `TEST_SESSION_REPORT.md` dokumentieren.
+2. **Quest-Progress erweitern:** Lessons/Missions/Fragment-Events an `applyQuestProgress` anbinden, damit Daily/Weekly-Quests automatisch zählen.
+3. **Achievement-Sync verifizieren:** Nach den neuen Fortschrittsberechnungen (Strength, Slots, Mission-Streak) im Browser gegenprüfen und Screenshots aktualisieren.
+4. **Automated Tests re-run:** DB/API-Skripte erneut ausführen (`test-database-content.js`, `test-api-endpoints.js`) und `docs/AUTOMATED_TEST_RESULTS.md` aktualisieren.
+5. **Content-Doku aktuell halten:** `docs/CONTENT_AUDIT.md` & `docs/MEGA_PROGRESS_SNAPSHOT.md` regelmäßig mit den neuen Kennzahlen synchronisieren (Status jetzt 100% Zielerfüllung).
+6. **UX-Checks:** Dashboard/Achievement-Seiten nach den letzten Fixes visuell abnehmen (Farben, Prozentwerte, NaN-Schutz).
 
 ---
 

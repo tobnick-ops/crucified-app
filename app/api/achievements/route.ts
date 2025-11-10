@@ -3,69 +3,36 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { addXP } from '@/lib/api/character';
+import { syncCharacterAchievements } from '@/lib/api/achievements';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get character
     const character = await prisma.character.findFirst({
       where: { userId: session.user.id },
-      include: {
-        lessons: true,
-        missions: true,
-        fragments: true,
-      },
     });
 
     if (!character) {
       return NextResponse.json({ error: 'Character not found' }, { status: 404 });
     }
 
-    // Get all achievements
-    const achievements = await prisma.achievement.findMany({
-      orderBy: [
-        { category: 'asc' },
-        { requirement: 'asc' },
-      ],
-    });
+    const syncResult = await syncCharacterAchievements(character.id);
 
-    // Get user's unlocked achievements
-    const unlocked = await prisma.characterAchievement.findMany({
-      where: { characterId: character.id },
-    });
-
-    const unlockedIds = new Set(unlocked.map(u => u.achievementId));
-
-    // Calculate progress for each achievement
-    const achievementsWithProgress = achievements.map(achievement => {
-      const isUnlocked = unlockedIds.has(achievement.id);
-      let progress = 0;
-
-      // Calculate progress based on achievement key
-      if (achievement.key.startsWith('lessons_')) {
-        progress = character.lessons.filter(l => l.completedAt).length;
-      } else if (achievement.key.startsWith('missions_')) {
-        progress = character.missions.filter(m => m.completedAt).length;
-      } else if (achievement.key.startsWith('fragments_')) {
-        progress = character.fragments.length;
-      } else if (achievement.key.startsWith('level_')) {
-        progress = character.level;
-      }
-
-      return {
-        ...achievement,
-        isUnlocked,
-        progress: isUnlocked ? achievement.requirement : progress,
-      };
-    });
+    if (syncResult.totalRewardXp > 0) {
+      await addXP(character.id, syncResult.totalRewardXp);
+    }
 
     return NextResponse.json({
-      achievements: achievementsWithProgress,
+      achievements: syncResult.achievements,
+      newlyUnlockedIds: syncResult.newlyUnlockedIds,
+      rewardedXp: syncResult.totalRewardXp,
     });
   } catch (error) {
     console.error('Error fetching achievements:', error);

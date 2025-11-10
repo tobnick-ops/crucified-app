@@ -80,7 +80,7 @@ export default function DashboardPage() {
         daily: daily,
         collection: {
           fragmentsUnlocked: fragments.unlockedCount || 0,
-          totalFragments: fragments.totalCount || 60,
+          totalFragments: fragments.totalFragments || fragments.totalCount || 0,
           collectionBonus: fragments.collectionBonus || 0,
         },
         recentActivity: [], // TODO: Implement activity feed
@@ -102,6 +102,9 @@ export default function DashboardPage() {
 
   const { character, daily, collection } = dashboardData;
   const xpProgress = (character.currentXp / character.xpForNextLevel) * 100;
+  const collectionProgress = collection.totalFragments > 0
+    ? Math.round((collection.fragmentsUnlocked / collection.totalFragments) * 100)
+    : 0;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -212,7 +215,7 @@ export default function DashboardPage() {
           <div className="p-6">
             <div className="text-center mb-4">
               <div className="text-4xl font-bold text-[var(--color-temple-gold)]">
-                {Math.round((collection.fragmentsUnlocked / collection.totalFragments) * 100)}%
+                {collectionProgress}%
               </div>
               <div className="text-sm text-[var(--text-secondary)]">
                 {collection.fragmentsUnlocked} / {collection.totalFragments} Fragmente

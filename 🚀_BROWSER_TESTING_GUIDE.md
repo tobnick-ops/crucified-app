@@ -2,6 +2,7 @@
 
 **Datum**: 7. November 2025  
 **Status**: CODE VALIDIERT ✅ - BEREIT FÜR BROWSER-TESTING  
+**QA-Status (Live):** siehe `docs/QA_STATUS.md`
 **Deine Aufgabe**: PostgreSQL starten → Seeds → Browser testen
 
 ---
@@ -109,6 +110,12 @@ npx ts-node database/seeds/quests-seed.ts
 - ✅ "✅ Success" Message
 - ✅ Keine Errors
 - ✅ Count-Messages (z.B. "11 neue Lektionen erstellt")
+
+**Quick Check (optional, aber empfohlen nach allen Seeds):**
+```bash
+node test-database-content.js
+```
+→ Gibt dir eine Übersicht, ob alle Content-Ziele tatsächlich in der DB liegen (Lessons 156, Missions 21, etc.).
 
 ---
 
@@ -473,6 +480,8 @@ mkdir -p docs/screenshots
 ---
 
 ## 🎯 TESTING-REIHENFOLGE (Empfohlen)
+
+> 📌 **Hinweis:** Dokumentiere den Fortschritt nach jeder Phase in `docs/QA_STATUS.md` und `TEST_SESSION_REPORT.md`. Für geführte Abläufe nutze `node test-runner-interactive.js` (Batch-Auswahl gemäß `docs/SYSTEMATIC_TEST_STRATEGY.md`).
 
 ### Phase 1: Quick Smoke Test (10 Min)
 1. Login

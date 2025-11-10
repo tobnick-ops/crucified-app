@@ -4,6 +4,8 @@
 **Status:** Ready to Execute  
 **Geschätzte Gesamtzeit:** 4-5 Stunden (mit Pausen)
 
+> **Aktueller QA-Stand (07.11.):** Automatisierte Datenbank- und API-Smoke-Tests wurden erfolgreich abgeschlossen. Die folgenden Schritte konzentrieren sich auf manuelle Browser-Validierung. Siehe `docs/QA_STATUS.md` für eine tagesaktuelle Übersicht.
+
 ---
 
 ## 📊 Warum systematisch testen?
@@ -25,6 +27,11 @@ Mit System:
 ---
 
 ## 🎮 3 Wege zum Erfolg
+
+**Empfohlene Reihenfolge (basierend auf QA-Status):**
+1. `Option 1` – Interaktiver Test-Runner, zunächst Batch 1 (Quick Smoke) abschließen.
+2. Anschließend Batch 2–8 gemäß Kapiteln unten.
+3. Funde und Screenshots zeitnah in `TEST_SESSION_REPORT.md` und `docs/GAMEREADY_TEST_REPORT.md` dokumentieren.
 
 ### Option 1: Interaktiver Test-Runner (EMPFOHLEN) 🌟
 
@@ -621,6 +628,8 @@ chmod +x test-runner-interactive.js
 **Zeitplan:** 4-5 Stunden total, aufgeteilt auf 2-4 Sessions
 
 **Erfolgskriterium:** 80%+ Pass Rate, keine P0 Bugs
+
+🔄 **Status-Tracking:** Fortschritte & verbleibende Aufgaben bitte in `docs/QA_STATUS.md` pflegen.
 
 ---
 

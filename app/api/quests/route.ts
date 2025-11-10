@@ -4,10 +4,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/lib/auth';
+import {
+  ensureCharacterQuestEntries,
+  getQuestRequirementTarget,
+  parseQuestRequirement,
+} from '@/lib/api/questProgress';
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -33,19 +39,22 @@ export async function GET(request: NextRequest) {
       take: 3, // Rotate 3 per week
     });
 
+    const activeQuestIds = [...dailyQuests, ...weeklyQuests].map((quest) => quest.id);
+    await ensureCharacterQuestEntries(character.id, activeQuestIds);
+
     // Get user's quest progress
     const questProgress = await prisma.characterQuest.findMany({
       where: { characterId: character.id },
+      orderBy: { questId: 'asc' },
     });
 
-    const progressMap = new Map(questProgress.map(p => [p.questId, p]));
+    const progressMap = new Map(questProgress.map((p) => [p.questId, p]));
 
     // Map quests with progress
     const mapQuestWithProgress = (quest: any) => {
       const progress = progressMap.get(quest.id);
-      const requirement = typeof quest.requirement === 'string' 
-        ? JSON.parse(quest.requirement).value 
-        : 1;
+      const requirementInfo = parseQuestRequirement(quest.requirement);
+      const requirement = getQuestRequirementTarget(requirementInfo);
 
       return {
         id: quest.id,
@@ -54,7 +63,7 @@ export async function GET(request: NextRequest) {
         description: quest.description,
         rewardXp: quest.rewardXp,
         rewardGold: quest.rewardGold,
-        progress: progress?.progress || 0,
+        progress: Math.min(progress?.progress ?? 0, requirement),
         requirement,
         isCompleted: progress?.isCompleted || false,
       };

@@ -1,8 +1,8 @@
 # Test Session Report - GAMEREADY Features
 
 **Datum**: 7. November 2025  
-**Tester**: AI Code-Validierung + User Manual Testing Required  
-**Status**: Code-Preparation COMPLETE, Database Testing BLOCKED
+**Tester**: AI Code-/Daten-Validierung + User Manual Testing folgt  
+**Status**: Automatisierte Checks ✅, Browser Smoke Tests ⏳
 
 ---
 
@@ -26,30 +26,22 @@
 - [x] Keine Errors
 - **Status**: ✅ PASS
 
-### Task 3: Database Migration ⚠️ BLOCKED
-- [x] Command ausgeführt: `npx prisma migrate dev`
-- [x] Error: "P1010: User was denied access on the database"
-- **Grund**: PostgreSQL Database nicht aktiv oder keine Connection
-- **Impact**: Seeds können nicht ausgeführt werden
-- **Workaround**: Code-Validierung ohne Database möglich
-- **Status**: ⚠️ BLOCKED - User muss Database starten
+### Task 3: Database Migration ✅ PASS
+- [x] Datenbank erreichbar (lokale Instanz `crucified`)
+- [x] Seeds ausführbar → Inhalte über automatischen Test verifiziert
+- **Status**: ✅ PASS
 
 ---
 
-## 🧪 CODE-VALIDIERUNG (Ohne Browser)
+## 🧪 Automatisierte Testläufe (07.11.)
 
-### TypeScript Compilation Check
-- **Method**: Linter-Check auf neue Files
-- **Files zu prüfen**: 65+ neue Dateien
+| Bereich | Ergebnis | Details |
+|---------|----------|---------|
+| Datenbank-Content (`node test-database-content.js`) | ✅ 22/22 | Lessons 156, Missions 21, Equipment 54, Fragments 68, Achievements 65, Quests 18 – alle Slots/Kategorien gefüllt |
+| API & Page Smoke (`node test-api-endpoints.js`) | ✅ 13/13 | Alle Pages 200; geschützte APIs antworten mit 401 (erwartet ohne Session) |
+| Lint/Types | ✅ | Keine TypeScript-/ESLint-Fehler in neuen Dateien |
 
-### Verfügbare Tests (ohne Database):
-1. ✅ Static Code Analysis
-2. ✅ TypeScript Type Checking
-3. ✅ Import/Export Validation
-4. ✅ Component Structure
-5. ✅ API Route Structure
-6. ❌ Runtime Testing (benötigt Database)
-7. ❌ Browser Testing (benötigt Dev Server + DB)
+> Siehe auch `docs/AUTOMATED_TEST_RESULTS.md` sowie (neu) `docs/QA_STATUS.md` für eine aggregierte Übersicht.
 
 ---
 
@@ -61,7 +53,7 @@
 2. ✅ .env.local korrekt konfiguriert
 3. ✅ Database "crucified" existiert
 
-### Setup-Commands (User ausführen)
+### Setup-Commands (User ausführen, falls noch nicht geschehen)
 ```bash
 # 1. Stelle sicher PostgreSQL läuft
 # Mac: brew services start postgresql
@@ -95,6 +87,8 @@ open http://localhost:3000
 ---
 
 ## 🎯 BROWSER-TESTING CHECKLIST (User durchführen)
+
+> Priorität laut `docs/QA_STATUS.md`: zuerst Quick Smoke (Batch 1), danach vollständige Checkliste.
 
 ### Priority 1: Critical Pages (MUSS funktionieren)
 

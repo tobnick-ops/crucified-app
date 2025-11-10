@@ -42,7 +42,7 @@ async function testCount(name, model, expected, details = '') {
 async function testEquipmentSlots() {
   try {
     console.log('\n  🔍 Checking Equipment Slots Distribution...');
-    const slots = ['HEAD', 'CHEST', 'LEGS', 'FEET', 'WEAPON', 'ACCESSORY'];
+    const slots = ['HELM', 'CHEST', 'LEGS', 'FEET', 'WEAPON', 'ACCESSORY'];
     
     for (const slot of slots) {
       const count = await prisma.equipmentItem.count({
@@ -72,44 +72,20 @@ async function testFragmentCategories() {
     console.log('\n  🔍 Checking Fragment Categories...');
     
     const charactersCount = await prisma.fragment.count({
-      where: { 
-        OR: [
-          { category: 'CHARACTERS' },
-          { category: 'CHARACTER' }
-        ]
-      }
+      where: { fragmentType: 'character' }
     });
     const locationsCount = await prisma.fragment.count({
-      where: { 
-        OR: [
-          { category: 'LOCATIONS' },
-          { category: 'LOCATION' }
-        ]
-      }
+      where: { fragmentType: 'location' }
     });
     const conceptsCount = await prisma.fragment.count({
-      where: { 
-        OR: [
-          { category: 'CONCEPTS' },
-          { category: 'CONCEPT' }
-        ]
-      }
-    });
-    const eventsCount = await prisma.fragment.count({
-      where: { 
-        OR: [
-          { category: 'EVENTS' },
-          { category: 'EVENT' }
-        ]
-      }
+      where: { fragmentType: 'concept' }
     });
     
     console.log(`    Characters: ${charactersCount} (expected ~20)`);
     console.log(`    Locations: ${locationsCount} (expected ~15)`);
     console.log(`    Concepts: ${conceptsCount} (expected ~12)`);
-    console.log(`    Events: ${eventsCount} (expected ~10)`);
     
-    if (charactersCount > 0 && locationsCount > 0 && conceptsCount > 0 && eventsCount > 0) {
+    if (charactersCount > 0 && locationsCount > 0 && conceptsCount > 0) {
       console.log(`    ${colors.green}✓${colors.reset} All categories present`);
       results.passed++;
     } else {

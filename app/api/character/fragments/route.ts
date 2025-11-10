@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { getCharacterFragments, getCollectionPercentage, getCollectionBonus } from '@/lib/api/fragments';
+import { getCharacterFragments, getCollectionBonus } from '@/lib/api/fragments';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,11 +30,15 @@ export async function GET(request: NextRequest) {
     }
 
     const fragments = await getCharacterFragments(character.id);
-    const collectionPercentage = await getCollectionPercentage(character.id);
+    const totalFragments = await prisma.fragment.count();
+    const unlockedCount = fragments.length;
+    const collectionPercentage = totalFragments > 0 ? (unlockedCount / totalFragments) * 100 : 0;
     const collectionBonus = getCollectionBonus(collectionPercentage);
 
     return NextResponse.json({
       fragments,
+      unlockedCount,
+      totalFragments,
       collectionPercentage,
       collectionBonus,
     });

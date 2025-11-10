@@ -32,13 +32,14 @@ async function testEndpoint(name, path, expectedStatus = 200, options = {}) {
     });
     
     const status = response.status;
-    const isSuccess = status === expectedStatus;
+    const expectedStatuses = Array.isArray(expectedStatus) ? expectedStatus : [expectedStatus];
+    const isSuccess = expectedStatuses.includes(status);
     
     if (isSuccess) {
       console.log(`  ${colors.green}✓ Status: ${status}${colors.reset}`);
       results.passed++;
     } else {
-      console.log(`  ${colors.red}✗ Status: ${status} (expected ${expectedStatus})${colors.reset}`);
+      console.log(`  ${colors.red}✗ Status: ${status} (expected ${expectedStatuses.join(', ')})${colors.reset}`);
       results.failed++;
     }
     

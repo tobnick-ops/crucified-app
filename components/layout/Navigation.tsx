@@ -16,6 +16,7 @@ export const Navigation: React.FC = () => {
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: '🏠' },
     { href: '/character', label: 'Charakter', icon: '👤' },
+    { href: '/character/equipment', label: 'Ausrüstung', icon: '⚔️' }, // FIX: Equipment-Link hinzugefügt
     { href: '/lessons', label: 'Lektionen', icon: '📖' },
     { href: '/missions', label: 'Missionen', icon: '🎮' },
     { href: '/collection', label: 'Sammlung', icon: '📚' },

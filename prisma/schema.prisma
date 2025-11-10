@@ -382,6 +382,7 @@ model MissionObjective {
   objectiveText String   @map("objective_text") @db.Text
   objectiveType String   @map("objective_type")
   requiredValue Int      @default(1) @map("required_value")
+  targetNpc     String?  @map("target_npc") // FIX: Dynamischer NPC-Name für Interact-Objectives
   
   mission       Mission  @relation(fields: [missionId], references: [id], onDelete: Cascade)
   

@@ -51,16 +51,19 @@ export async function seedMissionsExpansion() {
               objectiveText: 'Zeuge der 10 Plagen werden (Frösche, Stechmücken, etc.)',
               objectiveType: 'interact',
               requiredValue: 10,
+              targetNpc: 'Mose', // FIX: Dynamischer NPC-Name
             },
             {
               objectiveText: 'Pharao konfrontieren',
               objectiveType: 'interact',
               requiredValue: 3,
+              targetNpc: 'Pharao', // FIX: Dynamischer NPC-Name
             },
             {
               objectiveText: 'Überwinde Pharaos Sturheit (Boss-Battle)',
               objectiveType: 'boss_defeat',
               requiredValue: 1,
+              targetNpc: 'Pharao', // FIX: Dynamischer NPC-Name
             },
           ],
         },
